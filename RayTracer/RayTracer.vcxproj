@@ -75,6 +75,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Scene\Primitive.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Primitive.h" />
+    <ClInclude Include="src\Scene\Primitive.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
