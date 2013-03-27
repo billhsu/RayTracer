@@ -1,4 +1,4 @@
 raytracer
 =========
 
-A 3D ray tracer for 3D sound rendering
+A ray tracer for 3D sound rendering
