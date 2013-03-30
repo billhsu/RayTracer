@@ -4,6 +4,7 @@
 // Shanghai University
 
 #include "glut.h"
+//#include "Ray/Ray.h"
 #include "Scene/Primitive.h"
 
 void render(void)

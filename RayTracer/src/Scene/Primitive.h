@@ -3,17 +3,22 @@
 // billhsu.x@gmail.com
 // Shanghai University
 
-//Class for primitive scene objects
+//Class for primitive scene object
 #ifndef PRIMITIVE_H
 #define PRIMITIVE_H
 namespace RayTracer{
+
+class Ray;
 
 class Primitive
 {
 public:
     Primitive(void);
     ~Primitive(void);
+
+    bool intersect(Ray & ray, float const distance);
 };
+
 
 };
 #endif
