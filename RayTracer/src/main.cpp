@@ -63,7 +63,7 @@ void display(void)
 
     glLineWidth(1.0); 
     glColor3f(1.0, 0.0, 0.0);
-    int milliseconds = 30000;
+    int milliseconds = glutGet(GLUT_ELAPSED_TIME);
     int active_cnt=0;
     for(unsigned int i=0;i<rayList.size();++i)
     {
@@ -73,7 +73,7 @@ void display(void)
         RayTracer::vector3 end,dir;
         end=rayList[i].GetOrigin()+rayList[i].GetDirection()*0.1f;
         dir = rayList[i].GetDirection();
-        RayTracer::vector3 dist = rayList[i].GetOrigin()-RayTracer::vector3(-1.5f,0.0f,0.0f);
+        RayTracer::vector3 dist = end-RayTracer::vector3(-1.5f,0.0f,0.0f);
         if(dist.Length()<=0.5f)
         {
             rayList[i].active=false;
@@ -111,23 +111,7 @@ void display(void)
     }
     if(active_cnt==0)
     {
-        rayList.clear();
-        for(int theta=0;theta<30;++theta)
-        {
-            for(int phi=-15;phi<15;++phi)
-            {
-                RayTracer::vector3 dir;
-                dir.x = cosf(2.0f*PI/30.0f*theta)*sinf(2.0f*PI/30.0f*phi);
-                dir.y = sinf(2.0f*PI/30.0f*theta)*sinf(2.0f*PI/30.0f*phi);
-                dir.z = cosf(2.0f*PI/30.0f*phi);
-                RayTracer::Ray ray(RayTracer::vector3(1.5f,0.0f,0.0f), dir);
-                ray.strength=1.0f;
-                ray.milliseconds=0;
-                ray.active=true;
-                rayList.push_back(ray);
-            }
-            glutGet(GLUT_ELAPSED_TIME);
-        }
+        init();
         std::cout<<"New Wave"<<std::endl;
     }
     glutPostRedisplay();
