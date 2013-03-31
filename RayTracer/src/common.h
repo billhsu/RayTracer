@@ -3,7 +3,7 @@
 
 #include "math.h"
 #include "stdlib.h"
-
+#include <ostream>
 typedef unsigned int Pixel;
 
 inline float Rand( float a_Range ) { return ((float)rand() / RAND_MAX) * a_Range; }
@@ -51,6 +51,12 @@ namespace RayTracer {
         friend vector3 operator * ( const vector3& v, float f ) { return vector3( v.x * f, v.y * f, v.z * f ); }
         friend vector3 operator * ( const vector3& v1, vector3& v2 ) { return vector3( v1.x * v2.x, v1.y * v2.y, v1.z * v2.z ); }
         friend vector3 operator * ( float f, const vector3& v ) { return vector3( v.x * f, v.y * f, v.z * f ); }
+        friend std::ostream& operator << (std::ostream& stream, vector3 &p)
+        {
+            stream <<"("<< p.x <<","<<  p.y<<","<<p.z<<")";
+            return stream;
+        } 
+
         union
         {
             struct { float x, y, z; };

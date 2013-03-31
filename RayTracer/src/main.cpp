@@ -7,6 +7,7 @@
 #include "glut.h"
 #include <iostream>
 #include <vector>
+#include <windows.h>
 
 #include "Scene/Primitive.h"
 #include "Scene/Ray.h"
@@ -14,7 +15,7 @@
 std::vector<RayTracer::Ray> rayList;
 
 float rot_x=0.0f,rot_y=0.0f;
-
+DWORD startTime;
 void init(void)
 {
     glClearColor (0.0, 0.0, 0.0, 0.0);
@@ -30,10 +31,14 @@ void init(void)
             dir.z = cosf(2.0f*PI/30.0f*phi);
             RayTracer::Ray ray(RayTracer::vector3(1.5f,0.0f,0.0f), dir);
             ray.strength=1.0f;
+            ray.milliseconds=0;
             ray.active=true;
             rayList.push_back(ray);
         }
     }
+    glutGet(GLUT_ELAPSED_TIME);
+    std::cout<<"Sound position:(1.5,0,0)  Listener position: (-1.5,0,0)"<<std::endl;
+    startTime = GetTickCount();
 }
 
 void display(void)
@@ -45,19 +50,38 @@ void display(void)
     gluLookAt (3.0, 4.0, -5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
     glRotatef(rot_x,1.0f,0.0f,0.0f);
     glRotatef(rot_y,0.0f,1.0f,0.0f);
+    
+    glPushMatrix();
+    glTranslatef (-1.5f, 0.0f, 0.0f);
+    glutWireSphere (0.5f, 10.0f, 10.0f);
+    glPopMatrix();
+
     glPushMatrix();
     glScalef (2.0, 1.0, 1.0);      /* modeling transformation */
     glutWireCube (3.0);
     glPopMatrix();
+
     glLineWidth(1.0); 
     glColor3f(1.0, 0.0, 0.0);
+    int milliseconds = 30000;
+    int active_cnt=0;
     for(unsigned int i=0;i<rayList.size();++i)
     {
         if(!rayList[i].active) continue;
+        active_cnt++;
         glBegin(GL_LINES);
         RayTracer::vector3 end,dir;
         end=rayList[i].GetOrigin()+rayList[i].GetDirection()*0.1f;
         dir = rayList[i].GetDirection();
+        RayTracer::vector3 dist = rayList[i].GetOrigin()-RayTracer::vector3(-1.5f,0.0f,0.0f);
+        if(dist.Length()<=0.5f)
+        {
+            rayList[i].active=false;
+            rayList[i].milliseconds = GetTickCount()-startTime;
+            std::cout<<"Hit# "<<rayList[i].milliseconds<<"ms, Strength:"<<
+                rayList[i].strength<<", Direction:"<<rayList[i].GetDirection()<<std::endl;
+            glColor3f(1.0, 1.0, 0.0);
+        }
         if(fabs(end.x)>=3.0f)
         {
             rayList[i].SetDirection(RayTracer::vector3(-dir.x,dir.y,dir.z));
@@ -80,11 +104,32 @@ void display(void)
         glVertex3f(rayList[i].GetOrigin().x, rayList[i].GetOrigin().y, rayList[i].GetOrigin().z);
         glVertex3f(end.x, end.y, end.z);
         glEnd();
-        rayList[i].SetOrigin(rayList[i].GetOrigin()+rayList[i].GetDirection()*(0.001f*glutGet(GLUT_ELAPSED_TIME)/10000.0f));
-        rayList[i].strength -= 0.00005f*glutGet(GLUT_ELAPSED_TIME)/10000.0f;
+        rayList[i].SetOrigin(rayList[i].GetOrigin()+rayList[i].GetDirection()*(0.001f*milliseconds/10000.0f));
+        rayList[i].strength -= 0.00005f*milliseconds/10000.0f;
         if(rayList[i].strength<=0.0f) rayList[i].active=false;
+        
     }
-    
+    if(active_cnt==0)
+    {
+        rayList.clear();
+        for(int theta=0;theta<30;++theta)
+        {
+            for(int phi=-15;phi<15;++phi)
+            {
+                RayTracer::vector3 dir;
+                dir.x = cosf(2.0f*PI/30.0f*theta)*sinf(2.0f*PI/30.0f*phi);
+                dir.y = sinf(2.0f*PI/30.0f*theta)*sinf(2.0f*PI/30.0f*phi);
+                dir.z = cosf(2.0f*PI/30.0f*phi);
+                RayTracer::Ray ray(RayTracer::vector3(1.5f,0.0f,0.0f), dir);
+                ray.strength=1.0f;
+                ray.milliseconds=0;
+                ray.active=true;
+                rayList.push_back(ray);
+            }
+            glutGet(GLUT_ELAPSED_TIME);
+        }
+        std::cout<<"New Wave"<<std::endl;
+    }
     glutPostRedisplay();
     glFlush ();
 }
@@ -115,6 +160,7 @@ int main(int argc, char** argv)
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
     glutPassiveMotionFunc(mouse);
+
     glutMainLoop();
     return 0;
 }

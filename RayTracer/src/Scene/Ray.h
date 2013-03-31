@@ -22,6 +22,7 @@ namespace RayTracer{
         vector3& GetDirection() { return m_Direction; }
         float strength;
         bool active;
+        int milliseconds;
     private:
         vector3 m_Origin;
         vector3 m_Direction;
