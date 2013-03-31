@@ -43,6 +43,7 @@ void init(void)
 
 void display(void)
 {
+    glClearColor (0.5f, 0.5f, 0.5f, 0.0f);
     glClear (GL_COLOR_BUFFER_BIT);
     glColor3f (1.0, 1.0, 1.0);
     glLoadIdentity ();             /* clear the matrix */
