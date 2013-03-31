@@ -16,9 +16,6 @@
     <Filter Include="Source Files\Scene">
       <UniqueIdentifier>{b1985033-98a4-44d7-8188-f349881071fa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Ray">
-      <UniqueIdentifier>{786f9b49-b7b3-4418-9df0-100a82187234}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -27,16 +24,19 @@
     <ClCompile Include="src\Scene\Primitive.cpp">
       <Filter>Source Files\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="src\Ray\Ray.cpp">
-      <Filter>Source Files\Ray</Filter>
+    <ClCompile Include="src\Scene\Ray.cpp">
+      <Filter>Source Files\Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scene\Primitive.h">
       <Filter>Source Files\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="src\Ray\Ray.h">
-      <Filter>Source Files\Ray</Filter>
+    <ClInclude Include="src\common.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene\Ray.h">
+      <Filter>Source Files\Scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -7,13 +7,10 @@
 
 namespace RayTracer{
 
-Ray::Ray(void)
-{
-}
-
-
-Ray::~Ray(void)
-{
-}
+    Ray::Ray( vector3& a_Origin, vector3& a_Dir ) : 
+        m_Origin( a_Origin ), 
+        m_Direction( a_Dir )
+    {
+    }
 
 };

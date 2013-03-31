@@ -75,12 +75,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\Ray\Ray.cpp" />
     <ClCompile Include="src\Scene\Primitive.cpp" />
+    <ClCompile Include="src\Scene\Ray.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Ray\Ray.h" />
+    <ClInclude Include="src\common.h" />
     <ClInclude Include="src\Scene\Primitive.h" />
+    <ClInclude Include="src\Scene\Ray.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
