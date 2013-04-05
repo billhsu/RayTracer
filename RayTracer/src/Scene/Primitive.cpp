@@ -28,6 +28,11 @@ namespace RayTracer{
     int Primitive::intersect(Ray& ray, float& distance)
     {
         float d = DOT( m_Plane.N, ray.GetDirection() );
+        if(d<0)
+        {
+            d=-d;
+            m_Plane.N=-m_Plane.N;
+        }
         if (d != 0)
         {
             float dist = -(DOT( m_Plane.N, ray.GetOrigin() ) + m_Plane.D) / d;
@@ -36,7 +41,7 @@ namespace RayTracer{
                 if (dist < distance && isInside(ray.GetOrigin(),ray.GetOrigin()+ray.GetDirection()*dist))
                 {
                     distance = dist;
-                    std::cout<<"Hit"<<std::endl;
+                    std::cout<<"Hit!"<<std::endl;
                     return HIT;
                 }
             }
