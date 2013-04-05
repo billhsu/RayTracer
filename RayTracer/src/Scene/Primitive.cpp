@@ -36,6 +36,7 @@ namespace RayTracer{
                 if (dist < distance && isInside(ray.GetOrigin(),ray.GetOrigin()+ray.GetDirection()*dist))
                 {
                     distance = dist;
+                    std::cout<<"Hit"<<std::endl;
                     return HIT;
                 }
             }
