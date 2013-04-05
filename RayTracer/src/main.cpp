@@ -16,6 +16,7 @@ std::vector<RayTracer::Ray> rayList;
 
 float rot_x=0.0f,rot_y=0.0f;
 DWORD startTime;
+RayTracer::Primitive *p;
 void init(void)
 {
     glClearColor (0.0, 0.0, 0.0, 0.0);
@@ -39,6 +40,9 @@ void init(void)
     glutGet(GLUT_ELAPSED_TIME);
     std::cout<<"Sound position:(1.5,0,0)  Listener position: (-1.5,0,0)"<<std::endl;
     startTime = GetTickCount();
+    p= new RayTracer::Primitive(RayTracer::vector3(0,0,0),
+        RayTracer::vector3(0,0,1),
+        RayTracer::vector3(0,1,-1));
 }
 
 void display(void)
@@ -115,6 +119,7 @@ void display(void)
         init();
         std::cout<<"New Wave"<<std::endl;
     }
+    p->render();
     glutPostRedisplay();
     glFlush ();
 }
