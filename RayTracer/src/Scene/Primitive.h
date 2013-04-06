@@ -20,11 +20,12 @@ namespace RayTracer{
         vector3& GetNormal() { return m_Plane.N; }
         float GetD() { return m_Plane.D; }
         int intersect(Ray& ray, float& distance);
-        bool isInside(vector3 p0, vector3 p);
+        bool isInside(vector3 p);
         void render();
     private:
         plane m_Plane;
         vector3 p1,p2,p3;
+        bool sameSide(vector3 p1,vector3 p2,vector3 a,vector3 b);
     };
 };
 #endif

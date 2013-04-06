@@ -17,6 +17,7 @@ namespace RayTracer{
         p12=_p1-_p2;
         p23=_p2-_p3;
         vector3 normal = p12.Cross(p23);
+        normal.Normalize();
         float D = DOT( normal, _p3 ); //P is a point in the plane
         m_Plane.N=normal;
         m_Plane.D=D;
@@ -28,21 +29,24 @@ namespace RayTracer{
     int Primitive::intersect(Ray& ray, float& distance)
     {
         float d = DOT( m_Plane.N, ray.GetDirection() );
-        if(d<0)
+        if(d>0)
         {
-            d=-d;
             m_Plane.N=-m_Plane.N;
+            m_Plane.N.Normalize();
+            m_Plane.D=DOT( m_Plane.N, p1 );
         }
         if (d != 0)
         {
-            float dist = -(DOT( m_Plane.N, ray.GetOrigin() ) + m_Plane.D) / d;
+            float dist = DOT((p1-ray.GetOrigin()),m_Plane.N)/(DOT(ray.GetDirection(),m_Plane.N));
             if (dist > 0)
             {
-                if (dist < distance && isInside(ray.GetOrigin(),ray.GetOrigin()+ray.GetDirection()*dist))
+                if (dist < distance)
                 {
-                    distance = dist;
-                    std::cout<<"Hit!"<<std::endl;
-                    return HIT;
+                    if(isInside(ray.GetOrigin()+ray.GetDirection()*dist))
+                    {
+                        distance = dist;
+                        return HIT;
+                    }
                 }
             }
         }
@@ -50,37 +54,19 @@ namespace RayTracer{
     }
 
     //Check if a point is inside a triangle
-    bool Primitive::isInside(vector3 p0, vector3 p)
+    bool Primitive::isInside(vector3 p)
     {
-        vector3 v1,v2,n1;
-        float d1;
+        if (sameSide(p, p1, p2, p3) && sameSide(p,p2, p1, p3) && sameSide(p, p3, p1, p2))
+            return true;
+        else return false;
 
-        v1=p1-p;
-        v2=p2-p;
-        n1=v2.Cross(v1);
-        n1.Normalize();
-        d1=-DOT(p0,n1);
-        if((DOT(p,n1)+d1)<0)
-            return false;
-
-        v1=p2-p;
-        v2=p3-p;
-        n1=v2.Cross(v1);
-        n1.Normalize();
-        d1=-DOT(p0,n1);
-        if((DOT(p,n1)+d1)<0)
-            return false;
-
-        v1=p3-p;
-        v2=p1-p;
-        n1=v2.Cross(v1);
-        n1.Normalize();
-        d1=-DOT(p0,n1);
-        if((DOT(p,n1)+d1)<0)
-            return false;
-
-        return true;
-
+    }
+    bool Primitive::sameSide(vector3 p1,vector3 p2,vector3 a,vector3 b)
+    {
+        vector3 cp1 = (b-a).Cross(p1-a);
+        vector3 cp2 = (b-a).Cross(p2-a);
+        if (DOT(cp1, cp2) >= 0) return true;
+        else return false;
     }
 
     void Primitive::render()

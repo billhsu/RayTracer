@@ -22,7 +22,7 @@ void init(void)
     glClearColor (0.0, 0.0, 0.0, 0.0);
     glShadeModel (GL_FLAT);
 
-    /*for(int theta=0;theta<30;++theta)
+    for(int theta=0;theta<30;++theta)
     {
         for(int phi=-15;phi<15;++phi)
         {
@@ -36,18 +36,19 @@ void init(void)
             ray.active=true;
             rayList.push_back(ray);
         }
-    }*/
-    RayTracer::Ray ray(RayTracer::vector3(-1.5f,0.0f,0.0f), RayTracer::vector3(1.0f,0.0f,0.0f));
+    }
+    /*RayTracer::Ray ray(RayTracer::vector3(1.5f,0.0f,0.0f), RayTracer::vector3(-1.0f,0.0f,0.0f));
     ray.strength=1.0f;
     ray.milliseconds=0;
     ray.active=true;
-    rayList.push_back(ray);
+    ray.GetDirection().Normalize();
+    rayList.push_back(ray);*/
     glutGet(GLUT_ELAPSED_TIME);
     std::cout<<"Sound position:(1.5,0,0)  Listener position: (-1.5,0,0)"<<std::endl;
     startTime = GetTickCount();
-    p= new RayTracer::Primitive(RayTracer::vector3(1,-1,-1),
-        RayTracer::vector3(0,1,0),
-        RayTracer::vector3(0,0,1));
+    p= new RayTracer::Primitive(RayTracer::vector3(1,-1.5,-1.5),
+        RayTracer::vector3(1,-1.5,1.5),
+        RayTracer::vector3(0,1,0));
 }
 
 void display(void)
@@ -83,12 +84,12 @@ void display(void)
         RayTracer::vector3 end,dir;
         end=rayList[i].GetOrigin()+rayList[i].GetDirection()*0.1f;
         float dist_=0.1f;
-        if(p->intersect(rayList[i],dist_))rayList[i].SetDirection(-p->GetNormal());
+        if(p->intersect(rayList[i],dist_))rayList[i].SetDirection(p->GetNormal());
         dir = rayList[i].GetDirection();
         RayTracer::vector3 dist = end-RayTracer::vector3(-1.5f,0.0f,0.0f);
         if(dist.Length()<=0.5f)
         {
-            //rayList[i].active=false;
+            rayList[i].active=false;
             rayList[i].milliseconds = GetTickCount()-startTime;
             std::cout<<"Hit# "<<rayList[i].milliseconds<<"ms, Strength:"<<
                 rayList[i].strength<<", Direction:"<<rayList[i].GetDirection()<<std::endl;
@@ -119,7 +120,6 @@ void display(void)
         rayList[i].SetOrigin(rayList[i].GetOrigin()+rayList[i].GetDirection()*(0.001f*milliseconds/10000.0f));
         rayList[i].strength -= 0.00005f*milliseconds/10000.0f;
         if(rayList[i].strength<=0.0f) rayList[i].active=false;
-        rayList[i].strength=1.0f;
         
     }
     if(active_cnt==0)
