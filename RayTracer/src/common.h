@@ -20,8 +20,7 @@ namespace RayTracer {
     #define TRACEDEPTH		6
 
     #define HIT		 1		// Ray hit primitive
-    #define MISS	 0		// Ray missed primitive
-    #define INPRIM	-1		// Ray started inside primitive
+    #define MISS	 -1		// Ray missed primitive
 
     #define PI				3.141592653589793238462f
 
