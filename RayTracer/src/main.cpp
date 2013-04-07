@@ -7,8 +7,10 @@
 #include "glut.h"
 #include <iostream>
 #include <vector>
+#include <fstream>
 #include <windows.h>
-
+#include <string>
+#include <sstream>
 #include "Scene/Scene.h"
 #include "Scene/Primitive.h"
 #include "Scene/Ray.h"
@@ -18,6 +20,7 @@ std::vector<RayTracer::Ray> rayList;
 float rot_x=0.0f,rot_y=0.0f;
 DWORD startTime;
 RayTracer::Scene scene;
+
 void init(void)
 {
     glClearColor (0.0, 0.0, 0.0, 0.0);
@@ -51,7 +54,32 @@ void init(void)
         RayTracer::vector3(1,-1.5,1.5),
         RayTracer::vector3(0,1,0));
     //scene.primList.push_back(p);
-
+    std::ifstream in;
+    in.open("Res/Scene.obj", std::ifstream::in);
+    char line[256];
+    
+    std::vector<RayTracer::vector3> vList;
+    while(in.getline(line,256))
+    {
+        std::istringstream stream;
+        char mark;
+        float v1,v2,v3;
+        int i1,i2,i3;
+        stream.str(line);
+        stream>>mark;
+        if(mark=='v') 
+        {
+            stream>>v1>>v2>>v3;
+            vList.push_back(RayTracer::vector3(v1,v2,v3));
+        }
+        else if(mark=='f') 
+        {
+            stream>>i1>>i2>>i3;
+            p= RayTracer::Primitive(vList[i1-1],vList[i2-1],vList[i3-1]);
+            scene.primList.push_back(p);
+        }
+    }
+    /*
     //Down
     p= RayTracer::Primitive(RayTracer::vector3(-3,-1.5,-1.5),
         RayTracer::vector3(3,-1.5,-1.5),
@@ -111,7 +139,7 @@ void init(void)
     p= RayTracer::Primitive(RayTracer::vector3(3,1.5,1.5),
         RayTracer::vector3(3,1.5,-1.5),
         RayTracer::vector3(3,-1.5,-1.5));
-    scene.primList.push_back(p);
+    scene.primList.push_back(p);*/
 }
 
 void display(void)
