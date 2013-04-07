@@ -18,7 +18,7 @@ namespace RayTracer{
         p23=_p2-_p3;
         vector3 normal = p12.Cross(p23);
         normal.Normalize();
-        float D = DOT( normal, _p3 ); //P is a point in the plane
+        float D = DOT( normal, _p3 );
         m_Plane.N=normal;
         m_Plane.D=D;
         p1=_p1;
