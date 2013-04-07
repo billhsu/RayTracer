@@ -79,67 +79,6 @@ void init(void)
             scene.primList.push_back(p);
         }
     }
-    /*
-    //Down
-    p= RayTracer::Primitive(RayTracer::vector3(-3,-1.5,-1.5),
-        RayTracer::vector3(3,-1.5,-1.5),
-        RayTracer::vector3(3,-1.5,1.5));
-    scene.primList.push_back(p);
-
-    p= RayTracer::Primitive(RayTracer::vector3(3,-1.5,1.5),
-        RayTracer::vector3(-3,-1.5,-1.5),
-        RayTracer::vector3(-3,-1.5,1.5));
-    scene.primList.push_back(p);
-    //Up
-    p= RayTracer::Primitive(RayTracer::vector3(-3,1.5,-1.5),
-        RayTracer::vector3(3,1.5,-1.5),
-        RayTracer::vector3(3,1.5,1.5));
-    scene.primList.push_back(p);
-
-    p= RayTracer::Primitive(RayTracer::vector3(3,1.5,1.5),
-        RayTracer::vector3(-3,1.5,-1.5),
-        RayTracer::vector3(-3,1.5,1.5));
-    scene.primList.push_back(p);
-    //Left
-    p= RayTracer::Primitive(RayTracer::vector3(-3,1.5,-1.5),
-        RayTracer::vector3(-3,-1.5,-1.5),
-        RayTracer::vector3(3,-1.5,-1.5));
-    scene.primList.push_back(p);
-
-    p= RayTracer::Primitive(RayTracer::vector3(3,-1.5,-1.5),
-        RayTracer::vector3(3,1.5,-1.5),
-        RayTracer::vector3(-3,1.5,-1.5));
-    scene.primList.push_back(p);
-    //Right
-    p= RayTracer::Primitive(RayTracer::vector3(-3,1.5,1.5),
-        RayTracer::vector3(-3,-1.5,1.5),
-        RayTracer::vector3(3,-1.5,1.5));
-    scene.primList.push_back(p);
-
-    p= RayTracer::Primitive(RayTracer::vector3(3,-1.5,1.5),
-        RayTracer::vector3(3,1.5,1.5),
-        RayTracer::vector3(-3,1.5,1.5));
-    scene.primList.push_back(p);
-    //Front
-    p= RayTracer::Primitive(RayTracer::vector3(-3,-1.5,-1.5),
-        RayTracer::vector3(-3,-1.5,1.5),
-        RayTracer::vector3(-3,1.5,1.5));
-    scene.primList.push_back(p);
-
-    p= RayTracer::Primitive(RayTracer::vector3(-3,1.5,1.5),
-        RayTracer::vector3(-3,1.5,-1.5),
-        RayTracer::vector3(-3,-1.5,-1.5));
-    scene.primList.push_back(p);
-    //Back
-    p= RayTracer::Primitive(RayTracer::vector3(3,-1.5,-1.5),
-        RayTracer::vector3(3,-1.5,1.5),
-        RayTracer::vector3(3,1.5,1.5));
-    scene.primList.push_back(p);
-
-    p= RayTracer::Primitive(RayTracer::vector3(3,1.5,1.5),
-        RayTracer::vector3(3,1.5,-1.5),
-        RayTracer::vector3(3,-1.5,-1.5));
-    scene.primList.push_back(p);*/
 }
 
 void display(void)
@@ -169,11 +108,17 @@ void display(void)
         glBegin(GL_LINES);
         RayTracer::vector3 end,dir;
         end=rayList[i].GetOrigin()+rayList[i].GetDirection()*0.1f;
-        float dist_=0.1f;
+        float dist_=0.02f;
         int which = scene.intersect(rayList[i],dist_);
+
         if(which!=MISS)
         {
-            rayList[i].SetDirection(scene.primList[which].GetNormal());
+            end=rayList[i].GetOrigin()+rayList[i].GetDirection()*dist_;
+            RayTracer::vector3 dir=-2*DOT(scene.primList[which].GetNormal(),rayList[i].GetDirection())
+                *scene.primList[which].GetNormal()+rayList[i].GetDirection();
+            dir.Normalize();
+            rayList[i].SetDirection(dir);
+            rayList[i].SetOrigin(end);
             rayList[i].strength-=0.25f;
             glColor3f(1.0f,1.0f,0.0f);
         }

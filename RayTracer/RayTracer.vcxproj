@@ -78,12 +78,14 @@
     <ClCompile Include="src\Scene\Primitive.cpp" />
     <ClCompile Include="src\Scene\Ray.cpp" />
     <ClCompile Include="src\Scene\Scene.cpp" />
+    <ClCompile Include="src\SerialPort\SerialPort.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\Scene\Primitive.h" />
     <ClInclude Include="src\Scene\Ray.h" />
     <ClInclude Include="src\Scene\Scene.h" />
+    <ClInclude Include="src\SerialPort\SerialPort.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

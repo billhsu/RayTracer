@@ -24,7 +24,7 @@ namespace RayTracer{
         p1=_p1;
         p2=_p2;
         p3=_p3;
-        std::cout<<normal<<std::endl;
+        //std::cout<<normal<<std::endl;
     }
     int Primitive::intersect(Ray& ray, float& distance)
     {
