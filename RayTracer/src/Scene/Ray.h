@@ -23,6 +23,7 @@ namespace RayTracer{
         float strength;
         bool active;
         int microseconds;
+        float totalDist;
     private:
         vector3 m_Origin;
         vector3 m_Direction;
