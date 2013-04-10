@@ -6,7 +6,7 @@
 #include "Scene.h"
 #include "Primitive.h"
 #include "Ray.h"
-
+#include <iostream>
 namespace RayTracer{
     void Scene::render()
     {
@@ -19,11 +19,23 @@ namespace RayTracer{
     int Scene::intersect(Ray& ray, float& dist)
     {
         unsigned int i;
+        float min_dist=1000.0f;
+        int collisionID=-1;
         for(i=0;i<primList.size();++i)
         {
-            if(primList[i].intersect(ray, dist)==HIT) break;
+            float dist_ = dist;
+            if(primList[i].intersect(ray, dist_)==HIT) 
+            {
+                if(min_dist>dist_){
+                    min_dist = dist_;
+                    collisionID = i;
+                }
+            }
         }
-        if(i==primList.size())return MISS;
-        else return i;
+        if(collisionID==-1)return MISS;
+        else {
+            dist = min_dist;
+            return collisionID;
+        }
     }
 };
