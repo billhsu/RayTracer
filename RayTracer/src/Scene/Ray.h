@@ -8,7 +8,7 @@
 #define RAY_H
 
 #include "../common.h"
-
+#include <vector>
 namespace RayTracer{
 
     class Ray
@@ -24,6 +24,7 @@ namespace RayTracer{
         bool active;
         int microseconds;
         float totalDist;
+        std::vector<float> distList;
     private:
         vector3 m_Origin;
         vector3 m_Direction;

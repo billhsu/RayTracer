@@ -15,12 +15,126 @@
 #include "Scene/Primitive.h"
 #include "Scene/Ray.h"
 #include "common.h"
-std::vector<RayTracer::Ray> rayList;
+
 
 float rot_x=0.0f,rot_y=0.0f;
 DWORD startTime;
 RayTracer::Scene scene;
+std::vector<RayTracer::Ray> rayListTmp;
+void initCalc()
+{
+    RayTracer::Scene scene;
+    for(int theta=0;theta<30;++theta)
+    {
+        for(int phi=-15;phi<15;++phi)
+        {
+            RayTracer::vector3 dir;
+            dir.x = cosf(2.0f*PI/30.0f*theta)*sinf(2.0f*PI/30.0f*phi);
+            dir.y = sinf(2.0f*PI/30.0f*theta)*sinf(2.0f*PI/30.0f*phi);
+            dir.z = cosf(2.0f*PI/30.0f*phi);
+            RayTracer::Ray ray(RayTracer::vector3(1.5f,0.0f,0.0f), dir);
+            ray.strength=1.0f;
+            ray.microseconds=0;
+            ray.totalDist = 0.0f;
+            ray.active=true;
+            rayListTmp.push_back(ray);
+        }
+    }
+    /*RayTracer::Ray ray(RayTracer::vector3(1.5f,0.0f,0.0f), RayTracer::vector3(-1.0f,0.0f,0.0f));
+    ray.strength=1.0f;
+    ray.milliseconds=0;
+    ray.active=true;
+    ray.GetDirection().Normalize();
+    rayList.push_back(ray);*/
+    glutGet(GLUT_ELAPSED_TIME);
+    std::cout<<"Sound position:(1.5,0,0)  Listener position: (-1.5,0,0)"<<std::endl;
+    startTime = GetTickCount();
+    RayTracer::Primitive p= RayTracer::Primitive(RayTracer::vector3(1,-1.5,-1.5),
+        RayTracer::vector3(1,-1.5,1.5),
+        RayTracer::vector3(0,1,0));
+    //scene.primList.push_back(p);
+    std::ifstream in;
+    in.open("Res/Scene.obj", std::ifstream::in);
+    char line[256];
+    
+    std::vector<RayTracer::vector3> vList;
+    while(in.getline(line,256))
+    {
+        std::istringstream stream;
+        char mark;
+        float v1,v2,v3;
+        int i1,i2,i3;
+        stream.str(line);
+        stream>>mark;
+        if(mark=='v') 
+        {
+            stream>>v1>>v2>>v3;
+            vList.push_back(RayTracer::vector3(v1,v2,v3));
+        }
+        else if(mark=='f') 
+        {
+            stream>>i1>>i2>>i3;
+            p= RayTracer::Primitive(vList[i1-1],vList[i2-1],vList[i3-1]);
+            scene.primList.push_back(p);
+        }
+    }
 
+    //Compute delays
+    int active_rays = rayListTmp.size();
+    while(active_rays>0)
+    {
+        for(int i=0;i<rayListTmp.size();++i)
+        {
+            if(rayListTmp[i].active==false) continue;
+            
+            float dist_=1000.0f;
+            int which = scene.intersect(rayListTmp[i],dist_);
+            if(which!=MISS)
+            {
+                rayListTmp[i].totalDist+=dist_;
+                rayListTmp[i].strength++;
+                rayListTmp[i].distList.push_back(dist_);
+                if(rayListTmp[i].totalDist>=10.0f)
+                {
+                    rayListTmp[i].active=false;
+                    active_rays--;
+                    continue;
+                }
+                RayTracer::vector3 end=rayListTmp[i].GetOrigin()+rayListTmp[i].GetDirection()*(dist_*0.999f);
+                RayTracer::vector3 dir=-2*DOT(scene.primList[which].GetNormal(),rayListTmp[i].GetDirection())
+                    *scene.primList[which].GetNormal()+rayListTmp[i].GetDirection();
+                dir.Normalize();
+                rayListTmp[i].SetDirection(dir);
+                rayListTmp[i].SetOrigin(end);
+            }
+
+            RayTracer::vector3 L = RayTracer::vector3(-1.5f,0.0f,0.0f) - rayListTmp[i].GetOrigin();
+            float Tca = DOT(L,rayListTmp[i].GetDirection());
+            float d2;
+            float dist_to_listener = 1000.0f;
+            if(Tca>0)
+            {
+                d2 = DOT(L,L) - Tca*Tca;
+                if(d2<0.25f)
+                {
+                    float Thc = sqrt(0.25f-d2);
+                    dist_to_listener = Tca-Thc;
+                }
+            }
+            if(dist_>dist_to_listener)
+            {
+                //rayListTmp[i].totalDist-=dist_;
+                rayListTmp[i].totalDist+=(dist_to_listener);
+                rayListTmp[i].active=false;
+                active_rays--;
+
+                std::cout<<rayListTmp[i].totalDist<<" "<<rayListTmp[i].strength<<", "<<dist_<<" "<<dist_to_listener<<" "<<rayListTmp[i].distList[1]<<" "<<rayListTmp[i].GetOrigin()<<std::endl;
+            }
+            
+        }
+    }
+}
+std::vector<RayTracer::Ray> rayList;
 void init(void)
 {
     glClearColor (0.0, 0.0, 0.0, 0.0);
@@ -81,56 +195,7 @@ void init(void)
         }
     }
 
-    //Compute delays
-    int active_rays = rayList.size();
-    while(active_rays>0)
-    {
-        float min_dist=1000.0f;
-        int collisionID=0;
-        for(int i=0;i<rayList.size();++i)
-        {
-            if(rayList[i].active==false) continue;
-            RayTracer::vector3 L = RayTracer::vector3(-1.5f,0.0f,0.0f) - rayList[i].GetOrigin();
-            float Tca = DOT(L,rayList[i].GetDirection());
-            float d2;
-            float dist_to_listener = 10000.0f;
-            if(Tca>0)
-            {
-                d2 = DOT(L,L) - Tca*Tca;
-                if(d2<0.25f)
-                {
-                    float Thc = sqrt(0.25f-d2);
-                    dist_to_listener = Tca-Thc;
-                }
-            }
-            if(min_dist>dist_to_listener)
-            {
-                rayList[i].totalDist+=dist_to_listener;
-                rayList[i].active=false;
-                active_rays--;
-
-                std::cout<<rayList[i].totalDist/0.000340f<<"ns, "<<rayList[i].GetDirection()<<std::endl;
-            }
-            float dist_=1000.0f;
-            int which = scene.intersect(rayList[i],dist_);
-            if(which!=MISS)
-            {
-                rayList[i].totalDist+=dist_;
-                if(rayList[i].totalDist>=10.0f)
-                {
-                    rayList[i].active=false;
-                    active_rays--;
-                }
-                RayTracer::vector3 end=rayList[i].GetOrigin()+rayList[i].GetDirection()*dist_;
-                RayTracer::vector3 dir=-2*DOT(scene.primList[which].GetNormal(),rayList[i].GetDirection())
-                    *scene.primList[which].GetNormal()+rayList[i].GetDirection();
-                dir.Normalize();
-                rayList[i].SetDirection(dir);
-                rayList[i].SetOrigin(end);
-            }
-            
-        }
-    }
+    
     
 
 }
@@ -155,6 +220,14 @@ void display(void)
     glColor3f(1.0, 0.0, 0.0);
 
     int active_cnt=0;
+    glColor3f(1.0, 0.0, 1.0);
+    for(unsigned int i=0;i<rayListTmp.size();++i)
+    {
+        glBegin(GL_LINES);
+        glVertex3fv(rayListTmp[i].GetOrigin().cell);
+        glVertex3fv((rayListTmp[i].GetOrigin()+(rayListTmp[i].GetDirection())*0.2f).cell);
+        glEnd();
+    }
     for(unsigned int i=0;i<rayList.size();++i)
     {
         if(!rayList[i].active) continue;
@@ -227,6 +300,7 @@ int main(int argc, char** argv)
     glutInitWindowSize (600, 400);
     glutInitWindowPosition (100, 100);
     glutCreateWindow (argv[0]);
+    initCalc();
     init ();
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
