@@ -22,6 +22,14 @@ DWORD startTime;
 RayTracer::Scene scene;
 std::vector<RayTracer::Ray> rayListTmp;
 
+float const time441k = 22.675736961451247165532879818594f;
+struct respond
+{
+    float strength;
+    int time;
+};
+std::vector<respond> respondList;
+
 //Compute ray tracing by ray simulation 
 void initCalc()
 {
@@ -89,11 +97,16 @@ void initCalc()
             {
                 rayListTmp[i].totalDist+=(dist_to_listener);
                 rayListTmp[i].strength-=dist_to_listener/20.0f;
+                if(rayListTmp[i].strength<=0.0f)rayListTmp[i].strength=0.0f;
                 rayListTmp[i].active=false;
                 active_rays--;
 
-                std::cout<<rayListTmp[i].totalDist/0.000340f<<", "<<rayListTmp[i].strength<<" "<<
+                std::cout<<rayListTmp[i].totalDist/0.000340f<<"¦Ìs, "<<rayListTmp[i].strength<<" "<<
                     rayListTmp[i].GetDirection()<<std::endl;
+                respond respnd;
+                respnd.strength=rayListTmp[i].strength;
+                respnd.time=(int)((rayListTmp[i].totalDist/0.000340f)/time441k);
+                respondList.push_back(respnd);
             }
             if(which != MISS)
             {
@@ -110,6 +123,23 @@ void initCalc()
             
         }
     }
+    std::ifstream in("data/hrtf_0_0_r.txt");
+    float hrtf[128]={0.0f};
+    for(int i=0;i<128;++i) in>>hrtf[i];
+    float response[1024]={0.0f};
+
+    for(int i=0;i<respondList.size();++i)
+    {
+        for(int j=0;j<128;++j)
+        {
+            response[respondList[i].time+j]+=(hrtf[j]*respondList[i].strength);
+        }
+    }
+    std::ofstream out("data/response.txt");
+    out<<"a=[";
+    for(int i=0;i<1024;++i) out<<response[i]<<" ";
+    out<<"]"<<std::endl;
+
 }
 std::vector<RayTracer::Ray> rayList;
 
