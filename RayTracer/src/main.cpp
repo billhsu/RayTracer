@@ -21,6 +21,8 @@ float rot_x=0.0f,rot_y=0.0f;
 DWORD startTime;
 RayTracer::Scene scene;
 std::vector<RayTracer::Ray> rayListTmp;
+
+//Compute ray tracing using
 void initCalc()
 {
     RayTracer::Scene scene;
@@ -33,7 +35,7 @@ void initCalc()
             dir.y = sinf(2.0f*PI/30.0f*theta)*sinf(2.0f*PI/30.0f*phi);
             dir.z = cosf(2.0f*PI/30.0f*phi);
             RayTracer::Ray ray(RayTracer::vector3(1.5f,0.0f,0.0f), dir);
-            ray.strength=1.0f;
+            ray.strength=0.0f;
             ray.microseconds=0;
             ray.totalDist = 0.0f;
             ray.active=true;
@@ -100,12 +102,6 @@ void initCalc()
                     active_rays--;
                     continue;
                 }
-                RayTracer::vector3 end=rayListTmp[i].GetOrigin()+rayListTmp[i].GetDirection()*(dist_*0.999f);
-                RayTracer::vector3 dir=-2*DOT(scene.primList[which].GetNormal(),rayListTmp[i].GetDirection())
-                    *scene.primList[which].GetNormal()+rayListTmp[i].GetDirection();
-                dir.Normalize();
-                rayListTmp[i].SetDirection(dir);
-                rayListTmp[i].SetOrigin(end);
             }
 
             RayTracer::vector3 L = RayTracer::vector3(-1.5f,0.0f,0.0f) - rayListTmp[i].GetOrigin();
@@ -123,12 +119,22 @@ void initCalc()
             }
             if(dist_>dist_to_listener)
             {
-                //rayListTmp[i].totalDist-=dist_;
+                rayListTmp[i].totalDist-=dist_;
                 rayListTmp[i].totalDist+=(dist_to_listener);
                 rayListTmp[i].active=false;
                 active_rays--;
 
-                std::cout<<rayListTmp[i].totalDist<<" "<<rayListTmp[i].strength<<", "<<dist_<<" "<<dist_to_listener<<" "<<rayListTmp[i].distList[1]<<" "<<rayListTmp[i].GetOrigin()<<std::endl;
+                std::cout<<rayListTmp[i].totalDist<<" "<<rayListTmp[i].totalDist/0.000340f<<", "<<
+                    rayListTmp[i].GetDirection()<<std::endl;
+            }
+            if(which != MISS)
+            {
+                RayTracer::vector3 end=rayListTmp[i].GetOrigin()+rayListTmp[i].GetDirection()*(dist_*0.999f);
+                RayTracer::vector3 dir=-2*DOT(scene.primList[which].GetNormal(),rayListTmp[i].GetDirection())
+                    *scene.primList[which].GetNormal()+rayListTmp[i].GetDirection();
+                dir.Normalize();
+                rayListTmp[i].SetDirection(dir);
+                rayListTmp[i].SetOrigin(end);
             }
             
         }
