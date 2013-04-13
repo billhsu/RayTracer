@@ -22,7 +22,7 @@ DWORD startTime;
 RayTracer::Scene scene;
 std::vector<RayTracer::Ray> rayListTmp;
 
-//Compute ray tracing using
+//Compute ray tracing by ray simulation 
 void initCalc()
 {
     RayTracer::Scene scene;
@@ -35,19 +35,14 @@ void initCalc()
             dir.y = sinf(2.0f*PI/30.0f*theta)*sinf(2.0f*PI/30.0f*phi);
             dir.z = cosf(2.0f*PI/30.0f*phi);
             RayTracer::Ray ray(RayTracer::vector3(1.5f,0.0f,0.0f), dir);
-            ray.strength=0.0f;
+            ray.strength=1.0f;
             ray.microseconds=0;
             ray.totalDist = 0.0f;
             ray.active=true;
             rayListTmp.push_back(ray);
         }
     }
-    /*RayTracer::Ray ray(RayTracer::vector3(1.5f,0.0f,0.0f), RayTracer::vector3(-1.0f,0.0f,0.0f));
-    ray.strength=1.0f;
-    ray.milliseconds=0;
-    ray.active=true;
-    ray.GetDirection().Normalize();
-    rayList.push_back(ray);*/
+
     glutGet(GLUT_ELAPSED_TIME);
     std::cout<<"Sound position:(1.5,0,0)  Listener position: (-1.5,0,0)"<<std::endl;
     startTime = GetTickCount();
@@ -55,37 +50,12 @@ void initCalc()
         RayTracer::vector3(1,-1.5,1.5),
         RayTracer::vector3(0,1,0));
     //scene.primList.push_back(p);
-    std::ifstream in;
-    in.open("Res/Scene.obj", std::ifstream::in);
-    char line[256];
-    
-    std::vector<RayTracer::vector3> vList;
-    while(in.getline(line,256))
-    {
-        std::istringstream stream;
-        char mark;
-        float v1,v2,v3;
-        int i1,i2,i3;
-        stream.str(line);
-        stream>>mark;
-        if(mark=='v') 
-        {
-            stream>>v1>>v2>>v3;
-            vList.push_back(RayTracer::vector3(v1,v2,v3));
-        }
-        else if(mark=='f') 
-        {
-            stream>>i1>>i2>>i3;
-            p= RayTracer::Primitive(vList[i1-1],vList[i2-1],vList[i3-1]);
-            scene.primList.push_back(p);
-        }
-    }
-
+    scene.loadObj("Res/Scene.obj");
     //Compute delays
     int active_rays = rayListTmp.size();
     while(active_rays>0)
     {
-        for(int i=0;i<rayListTmp.size();++i)
+        for(unsigned int i=0;i<rayListTmp.size();++i)
         {
             if(rayListTmp[i].active==false) continue;
             
@@ -93,10 +63,8 @@ void initCalc()
             int which = scene.intersect(rayListTmp[i],dist_);
             if(which!=MISS)
             {
-                rayListTmp[i].totalDist+=dist_;
-                rayListTmp[i].strength++;
                 rayListTmp[i].distList.push_back(dist_);
-                if(rayListTmp[i].totalDist>=10.0f)
+                if(rayListTmp[i].totalDist>=10.0f || rayListTmp[i].strength<=0.0)
                 {
                     rayListTmp[i].active=false;
                     active_rays--;
@@ -119,16 +87,19 @@ void initCalc()
             }
             if(dist_>dist_to_listener)
             {
-                rayListTmp[i].totalDist-=dist_;
                 rayListTmp[i].totalDist+=(dist_to_listener);
+                rayListTmp[i].strength-=dist_to_listener/20.0f;
                 rayListTmp[i].active=false;
                 active_rays--;
 
-                std::cout<<rayListTmp[i].totalDist<<" "<<rayListTmp[i].totalDist/0.000340f<<", "<<
+                std::cout<<rayListTmp[i].totalDist/0.000340f<<", "<<rayListTmp[i].strength<<" "<<
                     rayListTmp[i].GetDirection()<<std::endl;
             }
             if(which != MISS)
             {
+                rayListTmp[i].totalDist+=dist_;
+                rayListTmp[i].strength-=dist_/20.0f;
+                rayListTmp[i].strength-=0.25f;
                 RayTracer::vector3 end=rayListTmp[i].GetOrigin()+rayListTmp[i].GetDirection()*(dist_*0.999f);
                 RayTracer::vector3 dir=-2*DOT(scene.primList[which].GetNormal(),rayListTmp[i].GetDirection())
                     *scene.primList[which].GetNormal()+rayListTmp[i].GetDirection();
@@ -141,6 +112,7 @@ void initCalc()
     }
 }
 std::vector<RayTracer::Ray> rayList;
+
 void init(void)
 {
     glClearColor (0.0, 0.0, 0.0, 0.0);
@@ -175,37 +147,14 @@ void init(void)
         RayTracer::vector3(1,-1.5,1.5),
         RayTracer::vector3(0,1,0));
     //scene.primList.push_back(p);
-    std::ifstream in;
-    in.open("Res/Scene.obj", std::ifstream::in);
-    char line[256];
     
-    std::vector<RayTracer::vector3> vList;
-    while(in.getline(line,256))
-    {
-        std::istringstream stream;
-        char mark;
-        float v1,v2,v3;
-        int i1,i2,i3;
-        stream.str(line);
-        stream>>mark;
-        if(mark=='v') 
-        {
-            stream>>v1>>v2>>v3;
-            vList.push_back(RayTracer::vector3(v1,v2,v3));
-        }
-        else if(mark=='f') 
-        {
-            stream>>i1>>i2>>i3;
-            p= RayTracer::Primitive(vList[i1-1],vList[i2-1],vList[i3-1]);
-            scene.primList.push_back(p);
-        }
-    }
+    scene.loadObj("Res/Scene.obj");
 
     
     
 
 }
-
+//Compute ray tracing by per frame ray simulation 
 void display(void)
 {
     glClearColor (0.0f, 0.0f, 0.0f, 0.0f);
@@ -227,13 +176,7 @@ void display(void)
 
     int active_cnt=0;
     glColor3f(1.0, 0.0, 1.0);
-    for(unsigned int i=0;i<rayListTmp.size();++i)
-    {
-        glBegin(GL_LINES);
-        glVertex3fv(rayListTmp[i].GetOrigin().cell);
-        glVertex3fv((rayListTmp[i].GetOrigin()+(rayListTmp[i].GetDirection())*0.2f).cell);
-        glEnd();
-    }
+
     for(unsigned int i=0;i<rayList.size();++i)
     {
         if(!rayList[i].active) continue;

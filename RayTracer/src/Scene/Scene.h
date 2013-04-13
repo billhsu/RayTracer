@@ -7,12 +7,14 @@
 #define SCENE_H
 
 #include <vector>
+#include <string>
 namespace RayTracer{
     class Primitive;
     class Ray;
     class Scene
     {
     public:
+        bool loadObj(std::string filename);
         void render();
         int intersect(Ray& ray, float& dist);
         std::vector<Primitive> primList;

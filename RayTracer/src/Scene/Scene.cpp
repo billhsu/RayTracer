@@ -7,7 +7,40 @@
 #include "Primitive.h"
 #include "Ray.h"
 #include <iostream>
+#include <sstream>
+#include <fstream>
+
 namespace RayTracer{
+
+    bool Scene::loadObj(std::string filename)
+    {
+        std::ifstream in;
+        in.open(filename, std::ifstream::in);
+        char line[256];
+
+        std::vector<RayTracer::vector3> vList;
+        while(in.getline(line,256))
+        {
+            std::istringstream stream;
+            char mark;
+            float v1,v2,v3;
+            int i1,i2,i3;
+            stream.str(line);
+            stream>>mark;
+            if(mark=='v') 
+            {
+                stream>>v1>>v2>>v3;
+                vList.push_back(RayTracer::vector3(v1,v2,v3));
+            }
+            else if(mark=='f') 
+            {
+                stream>>i1>>i2>>i3;
+                Primitive p = Primitive(vList[i1-1],vList[i2-1],vList[i3-1]);
+                primList.push_back(p);
+            }
+        }
+        return true;
+    }
     void Scene::render()
     {
         for(unsigned int i=0;i<primList.size();++i)
