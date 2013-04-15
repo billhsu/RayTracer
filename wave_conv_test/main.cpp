@@ -53,7 +53,7 @@ void parseWav(char *data)
     char *buffer;
 
     WAVEFORMATEX wf;
-    WAVEHDR wh;
+    volatile WAVEHDR wh;
     HWAVEOUT hWaveOut;
 
     fmtChunk mFmtChunk;
@@ -101,13 +101,13 @@ void parseWav(char *data)
                 wh.dwLoops = 0;
 
                 waveOutOpen(&hWaveOut,WAVE_MAPPER,&wf,0,0,CALLBACK_NULL);
-                waveOutPrepareHeader(hWaveOut,&wh,sizeof(wh));
-                waveOutWrite(hWaveOut,&wh,sizeof(wh));
+                waveOutPrepareHeader(hWaveOut,(wavehdr_tag*)&wh,sizeof(wh));
+                waveOutWrite(hWaveOut,(wavehdr_tag*)&wh,sizeof(wh));
 
                 do {}
                 while (!(wh.dwFlags & WHDR_DONE));
 
-                waveOutUnprepareHeader(hWaveOut,&wh,sizeof(wh));
+                waveOutUnprepareHeader(hWaveOut,(wavehdr_tag*)&wh,sizeof(wh));
                 waveOutClose(hWaveOut);
 
                 free(buffer);
