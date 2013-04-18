@@ -4,9 +4,9 @@ RayTracer
 A ray tracer for 3D sound rendering
 
 * Simulate sound propagation with rays.
-* Record sound impulse response.
+* Record sound impulse responses.
 * Convolve the generated impulse response with HRTF database(kemar from MIT)
-* Compute the new response
+* Compute the new response.
 
 In progress..
 
