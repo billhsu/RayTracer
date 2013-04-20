@@ -136,9 +136,9 @@ void initCalc()
         }
     }
     std::ofstream out("data/response.txt");
-    out<<"a=[";
-    for(int i=0;i<1024;++i) out<<response[i]<<" ";
-    out<<"]"<<std::endl;
+    out<<"double a[1024]={";
+    for(int i=0;i<1024;++i) out<<response[i]<<",";
+    out<<"}"<<std::endl;
 
 }
 std::vector<RayTracer::Ray> rayList;
