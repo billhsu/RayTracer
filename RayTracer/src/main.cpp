@@ -15,7 +15,7 @@
 #include "Scene/Primitive.h"
 #include "Scene/Ray.h"
 #include "common.h"
-
+#include "time.h"
 
 float rot_x=0.0f,rot_y=0.0f;
 DWORD startTime;
@@ -61,6 +61,8 @@ void initCalc()
     scene.loadObj("Res/Scene.obj");
     //Compute delays
     int active_rays = rayListTmp.size();
+    clock_t start, finish;
+    start = clock();
     while(active_rays>0)
     {
         for(unsigned int i=0;i<rayListTmp.size();++i)
@@ -101,8 +103,8 @@ void initCalc()
                 rayListTmp[i].active=false;
                 active_rays--;
 
-                std::cout<<rayListTmp[i].totalDist/0.000340f<<"¦Ìs, "<<rayListTmp[i].strength<<" "<<
-                    rayListTmp[i].GetDirection()<<std::endl;
+                //std::cout<<rayListTmp[i].totalDist/0.000340f<<"¦Ìs, "<<rayListTmp[i].strength<<" "<<
+                //    rayListTmp[i].GetDirection()<<std::endl;
                 respond respnd;
                 respnd.strength=rayListTmp[i].strength;
                 respnd.time=(int)((rayListTmp[i].totalDist/0.000340f)/time441k);
@@ -123,6 +125,7 @@ void initCalc()
             
         }
     }
+
     std::ifstream in("data/hrtf_0_0_r.txt");
     float hrtf[128]={0.0f};
     for(int i=0;i<128;++i) in>>hrtf[i];
@@ -135,6 +138,10 @@ void initCalc()
             response[respondList[i].time+j]+=(hrtf[j]*respondList[i].strength);
         }
     }
+    finish = clock();
+    double duration = (double)(finish - start) / CLOCKS_PER_SEC;
+    printf( "%f seconds\n", duration );
+
     std::ofstream out("data/response.txt");
     out<<"double a[1024]={";
     for(int i=0;i<1024;++i) out<<response[i]<<",";
