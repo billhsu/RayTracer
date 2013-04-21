@@ -19,6 +19,9 @@
     <Filter Include="Source Files\SerialPort">
       <UniqueIdentifier>{11b66140-1b0c-4d14-8e06-c8dbc7138370}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Audio">
+      <UniqueIdentifier>{6d27528b-928d-4de8-ac51-f9b4ab90b0ad}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -36,6 +39,9 @@
     <ClCompile Include="src\SerialPort\SerialPort.cpp">
       <Filter>Source Files\SerialPort</Filter>
     </ClCompile>
+    <ClCompile Include="src\Audio\hrtf.cpp">
+      <Filter>Source Files\Audio</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scene\Primitive.h">
@@ -52,6 +58,9 @@
     </ClInclude>
     <ClInclude Include="src\SerialPort\SerialPort.h">
       <Filter>Source Files\SerialPort</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Audio\hrtf.h">
+      <Filter>Source Files\Audio</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

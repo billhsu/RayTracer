@@ -74,6 +74,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Audio\hrtf.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Scene\Primitive.cpp" />
     <ClCompile Include="src\Scene\Ray.cpp" />
@@ -81,6 +82,7 @@
     <ClCompile Include="src\SerialPort\SerialPort.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Audio\hrtf.h" />
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\Scene\Primitive.h" />
     <ClInclude Include="src\Scene\Ray.h" />
