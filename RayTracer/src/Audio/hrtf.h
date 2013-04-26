@@ -7,18 +7,22 @@
 #define HRTF_H
 #include <string>
 #include <vector>
+#include "../common.h"
 class hrtf
 {
 public:
-    hrtf(void);
+    hrtf(void){}
+    htrf(std::string dir);
     ~hrtf(void);
     void load(std::string dir);
-
+    short* getHRTF(RayTracer::vector3 direction);
 private:
     struct hrtf_data{
-        float ir[128];
+        short* ir;
+        int h,e;
     };
-    std::vector<hrtf_data> a;
+    std::vector<hrtf_data> hrtf_list;
+    void read_hrtf(std::string filename);
 };
 
 #endif
