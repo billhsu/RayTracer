@@ -42,6 +42,9 @@
     <ClCompile Include="src\Audio\hrtf.cpp">
       <Filter>Source Files\Audio</Filter>
     </ClCompile>
+    <ClCompile Include="src\Audio\wav.cpp">
+      <Filter>Source Files\Audio</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scene\Primitive.h">
@@ -60,6 +63,9 @@
       <Filter>Source Files\SerialPort</Filter>
     </ClInclude>
     <ClInclude Include="src\Audio\hrtf.h">
+      <Filter>Source Files\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Audio\wav.h">
       <Filter>Source Files\Audio</Filter>
     </ClInclude>
   </ItemGroup>

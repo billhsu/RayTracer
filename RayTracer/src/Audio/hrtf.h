@@ -8,13 +8,15 @@
 #include <string>
 #include <vector>
 #include "../common.h"
+#include "wav.h"
+
 class hrtf
 {
 public:
-    hrtf(void){}
-    htrf(std::string dir);
+    hrtf(){}
+    hrtf(char* Path);
     ~hrtf(void);
-    void load(std::string dir);
+    void load(char* Path);
     short* getHRTF(RayTracer::vector3 direction);
 private:
     struct hrtf_data{
@@ -22,7 +24,8 @@ private:
         int h,e;
     };
     std::vector<hrtf_data> hrtf_list;
-    void read_hrtf(std::string filename);
+    void read_hrtf(char* filename);
+    wav mWav;
 };
 
 #endif

@@ -25,7 +25,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -75,6 +75,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Audio\hrtf.cpp" />
+    <ClCompile Include="src\Audio\wav.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Scene\Primitive.cpp" />
     <ClCompile Include="src\Scene\Ray.cpp" />
@@ -83,6 +84,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Audio\hrtf.h" />
+    <ClInclude Include="src\Audio\wav.h" />
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\Scene\Primitive.h" />
     <ClInclude Include="src\Scene\Ray.h" />

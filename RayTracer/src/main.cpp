@@ -16,7 +16,9 @@
 #include "Scene/Ray.h"
 #include "common.h"
 #include "time.h"
+#include "Audio/hrtf.h"
 
+hrtf mhrtf("data\\horizontal");
 float rot_x=0.0f,rot_y=0.0f;
 DWORD startTime;
 RayTracer::Scene scene;

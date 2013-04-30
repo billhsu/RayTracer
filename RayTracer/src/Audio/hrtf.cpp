@@ -2,35 +2,35 @@
 // Shipeng Xu 2013
 // billhsu.x@gmail.com
 // Shanghai University
-
+#include <stdio.h>
 #include "hrtf.h"
-#include "wav.h"
 
-hrtf::hrtf(std::string dir)
+
+hrtf::hrtf(char* Path)
 {
-    load(dir);
+    load(Path);
 }
 hrtf::~hrtf()
 {
-    for(int i=0; i<count(hrtf_list.size()); ++i)
+    for(unsigned int i=0; i<hrtf_list.size(); ++i)
     {
         free(hrtf_list[i].ir);
     }
 }
-void hrtf::load(std::string dir)
+void hrtf::load(char* Path)
 {
     WIN32_FIND_DATA FindData;
     HANDLE hError;
     int FileCount = 0;
-    char FilePathName[LEN];
-    char FullPathName[LEN];
+    char FilePathName[256];
+    char FullPathName[256];
     strcpy(FilePathName, Path);
     strcat(FilePathName, "\\*.*");
-    hError = FindFirstFile(FilePathName, &FindData);
+    hError = FindFirstFile((LPCSTR)FilePathName, &FindData);
     if (hError == INVALID_HANDLE_VALUE)
     {
         printf("Failed!");
-        return 0;
+        return;
     }
     while(::FindNextFile(hError, &FindData))
     {
@@ -47,7 +47,7 @@ void hrtf::load(std::string dir)
         if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
         {
             printf("<Dir>");
-            DirectoryList(FullPathName);
+            load(FullPathName);
         }
         else
         {
@@ -57,14 +57,14 @@ void hrtf::load(std::string dir)
     }
 }
 
-void hrtf::read_hrtf(std::string filename)
+void hrtf::read_hrtf(char* filename)
 {
     //TODO:split h e
     long fileSize;
     hrtf_data data;
-    data.ir = readWavFileData(filename.c_str(), fileSize);
-    data.h = h;
-    data.e = e;
+    data.ir = mWav.readWavFileData(filename, fileSize);
+    //data.h = h;
+    //data.e = e;
     hrtf_list.push_back(data);
 
 }
@@ -85,7 +85,7 @@ short* hrtf::getHRTF(RayTracer::vector3 direction)
     }
 
     min_dist = 1000.0f;
-    short* target_ir = null;
+    short* target_ir = NULL;
     for(int i=0; i<hrtf_list.size(); ++i)
     {
         if(hrtf_list[i].h != h) continue;
