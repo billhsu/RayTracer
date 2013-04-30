@@ -79,6 +79,7 @@ void hrtf::read_hrtf(char* filename)
 }
 short* hrtf::getHRTF(RayTracer::vector3 direction)
 {
+    direction=-direction;
     float yaw = atan2(direction.y, direction.x)*180.0f/PI;
     float pitch = atan2(direction.z, 
             sqrt(direction.x*direction.x+direction.y*direction.y))*180.0f/PI;
@@ -86,9 +87,9 @@ short* hrtf::getHRTF(RayTracer::vector3 direction)
     int h,e;
     for(int i=0; i<hrtf_list.size(); ++i)
     {
-        if(hrtf_list[i].h-pitch<min_dist)
+        if(fabs(hrtf_list[i].h-pitch)<min_dist)
         {
-            min_dist = hrtf_list[i].h-pitch;
+            min_dist = fabs(hrtf_list[i].h-pitch);
             h = hrtf_list[i].h;
         }
     }
@@ -98,14 +99,15 @@ short* hrtf::getHRTF(RayTracer::vector3 direction)
     for(int i=0; i<hrtf_list.size(); ++i)
     {
         if(hrtf_list[i].h != h) continue;
-        if(hrtf_list[i].e-yaw<min_dist)
+        if(fabs((hrtf_list[i].e-180)-yaw)<min_dist)
         {
-            min_dist = hrtf_list[i].e-yaw;
+            min_dist = fabs((hrtf_list[i].e-180)-yaw);
             e = hrtf_list[i].e;
             target_ir = hrtf_list[i].ir;
         }
     }
 
+    printf("yaw=%f pitch=%f h=%d e=%d\n",yaw,pitch,h,e);
     return target_ir;
 
 

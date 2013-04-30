@@ -35,6 +35,8 @@ std::vector<respond> respondList;
 //Compute ray tracing by ray simulation 
 void initCalc()
 {
+    mhrtf.getHRTF(RayTracer::vector3(1,0,0));
+
     RayTracer::Scene scene;
     for(int theta=0;theta<30;++theta)
     {
@@ -107,6 +109,8 @@ void initCalc()
 
                 //std::cout<<rayListTmp[i].totalDist/0.000340f<<"¦Ìs, "<<rayListTmp[i].strength<<" "<<
                 //    rayListTmp[i].GetDirection()<<std::endl;
+                std::cout<<rayListTmp[i].GetDirection()<<" ";
+                mhrtf.getHRTF(rayListTmp[i].GetDirection());
                 respond respnd;
                 respnd.strength=rayListTmp[i].strength;
                 respnd.time=(int)((rayListTmp[i].totalDist/0.000340f)/time441k);
