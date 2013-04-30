@@ -12,9 +12,13 @@ hrtf::hrtf(char* Path)
 }
 hrtf::~hrtf()
 {
-    for(unsigned int i=0; i<hrtf_list.size(); ++i)
+    for(unsigned int i=0; i<hrtf_list_r.size(); ++i)
     {
-        free(hrtf_list[i].ir);
+        free(hrtf_list_r[i].ir);
+    }
+    for(unsigned int i=0; i<hrtf_list_l.size(); ++i)
+    {
+        free(hrtf_list_l[i].ir);
     }
 }
 void hrtf::load(char* Path)
@@ -68,47 +72,53 @@ void hrtf::read_hrtf(char* filename)
     _splitpath(filename,drive,dir,fname,ext);
 
     strcpy(fname_cpy, fname);
-    char* token = strtok(fname_cpy, "H");
+    char* token = strtok(fname_cpy, "RL");
+    
     token = strtok(token, "e");
-    data.h = atoi (token);
-    token = strtok(NULL, "a");
     data.e = atoi (token);
-
-    hrtf_list.push_back(data);
+    token = strtok(NULL, "a");
+    data.a = atoi (token);
+    if(fname[0]=='R')
+        {printf("R ");hrtf_list_r.push_back(data);}
+    else
+        {printf("L ");hrtf_list_l.push_back(data);}
+    printf("fname:%s e:%d a:%d\n",fname,data.a,data.e);
 
 }
-short* hrtf::getHRTF(RayTracer::vector3 direction)
+short** hrtf::getHRTF(RayTracer::vector3 direction)
 {
     direction=-direction;
     float yaw = atan2(direction.y, direction.x)*180.0f/PI;
     float pitch = atan2(direction.z, 
-            sqrt(direction.x*direction.x+direction.y*direction.y))*180.0f/PI;
+        sqrt(direction.x*direction.x+direction.y*direction.y))*180.0f/PI;
     float min_dist = 1000.0f;
     int h,e;
-    for(int i=0; i<hrtf_list.size(); ++i)
+    for(int i=0; i<hrtf_list_r.size(); ++i)
     {
-        if(fabs(hrtf_list[i].h-pitch)<min_dist)
+        if(fabs(hrtf_list_r[i].a-pitch)<min_dist)
         {
-            min_dist = fabs(hrtf_list[i].h-pitch);
-            h = hrtf_list[i].h;
+            min_dist = fabs(hrtf_list_r[i].a-pitch);
+            h = hrtf_list_r[i].a;
         }
     }
 
     min_dist = 1000.0f;
-    short* target_ir = NULL;
-    for(int i=0; i<hrtf_list.size(); ++i)
+    short* target_ir[2];
+    for(int i=0; i<hrtf_list_r.size(); ++i)
     {
-        if(hrtf_list[i].h != h) continue;
-        if(fabs((hrtf_list[i].e-180)-yaw)<min_dist)
+        if(hrtf_list_r[i].a != h) continue;
+        if(fabs((hrtf_list_r[i].e-180)-yaw)<min_dist)
         {
-            min_dist = fabs((hrtf_list[i].e-180)-yaw);
-            e = hrtf_list[i].e;
-            target_ir = hrtf_list[i].ir;
+            min_dist = fabs((hrtf_list_r[i].e-180)-yaw);
+            e = hrtf_list_r[i].e;
+            target_ir[0] = hrtf_list_l[i].ir;
+            target_ir[1] = hrtf_list_r[i].ir;
         }
     }
 
-    printf("yaw=%f pitch=%f h=%d e=%d\n",yaw,pitch,h,e);
+    printf("R: yaw=%f pitch=%f h=%d e=%d\n",yaw,pitch,h,e);
     return target_ir;
 
 
 }
+

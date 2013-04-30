@@ -17,13 +17,14 @@ public:
     hrtf(char* Path);
     ~hrtf(void);
     void load(char* Path);
-    short* getHRTF(RayTracer::vector3 direction);
+    short** getHRTF(RayTracer::vector3 direction);
 private:
     struct hrtf_data{
         short* ir;
-        int h,e;
+        int a,e;
     };
-    std::vector<hrtf_data> hrtf_list;
+    std::vector<hrtf_data> hrtf_list_r;
+    std::vector<hrtf_data> hrtf_list_l;
     void read_hrtf(char* filename);
     wav mWav;
 };
