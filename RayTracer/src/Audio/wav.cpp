@@ -43,7 +43,7 @@ short* wav::parseWav(char *data)
         mPtr += 3;
         if (mPtr[0] == 0x20746D66)  // little endian for "fmt "
         {
-            printf("Format chunk found\n");
+            //printf("Format chunk found\n");
 
             tmpPtr = mPtr;
             memcpy(&mFmtChunk, tmpPtr, sizeof(mFmtChunk));
@@ -54,7 +54,7 @@ short* wav::parseWav(char *data)
             mPtr = tmpPtr;
             if (mPtr[0] == 0x61746164)        // little endian for "data"
             {
-                printf("Data chunk found\n");
+                //printf("Data chunk found\n");
 
                 tmpPtr = mPtr;
                 memcpy(&mDataChunk, tmpPtr, sizeof(mDataChunk));
@@ -63,11 +63,11 @@ short* wav::parseWav(char *data)
                 buffer = (short*) malloc(mDataChunk.chunkDataSize);
                 memcpy(buffer, mPtr, mDataChunk.chunkDataSize);
 
-                printf("sampleRate: %d\nnChannels: %d\nchunkDataSize: %d\n", 
+                /*printf("sampleRate: %d\nnChannels: %d\nchunkDataSize: %d\n", 
                     mFmtChunk.sampleRate,
                     mFmtChunk.numChannels,
                     mDataChunk.chunkDataSize);
-                
+                */
                 wf.wFormatTag = mFmtChunk.compressionCode;
                 wf.nChannels = mFmtChunk.numChannels;
                 wf.nSamplesPerSec = mFmtChunk.sampleRate;

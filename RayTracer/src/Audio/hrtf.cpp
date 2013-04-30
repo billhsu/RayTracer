@@ -42,11 +42,11 @@ void hrtf::load(char* Path)
 
         wsprintf(FullPathName, "%s\\%s", Path,FindData.cFileName);
         FileCount++;
-        printf("\n%d  %s  ", FileCount, FullPathName);
+        //printf("\n%d  %s  ", FileCount, FullPathName);
 
         if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
         {
-            printf("<Dir>");
+            //printf("<Dir>");
             load(FullPathName);
         }
         else
@@ -59,12 +59,21 @@ void hrtf::load(char* Path)
 
 void hrtf::read_hrtf(char* filename)
 {
-    //TODO:split h e
     long fileSize;
     hrtf_data data;
+    char drive[16],dir[128],fname[128],ext[16];
+    char fname_cpy[128];
+    
     data.ir = mWav.readWavFileData(filename, fileSize);
-    //data.h = h;
-    //data.e = e;
+    _splitpath(filename,drive,dir,fname,ext);
+
+    strcpy(fname_cpy, fname);
+    char* token = strtok(fname_cpy, "H");
+    token = strtok(token, "e");
+    data.h = atoi (token);
+    token = strtok(NULL, "a");
+    data.e = atoi (token);
+
     hrtf_list.push_back(data);
 
 }
