@@ -16,13 +16,19 @@ public:
     hrtf(){}
     hrtf(char* Path);
     ~hrtf(void);
+    struct ir_both 
+    {
+        float* ir_r;
+        float* ir_l;
+    };
     void load(char* Path);
-    short** getHRTF(RayTracer::vector3 direction);
+    ir_both getHRTF(RayTracer::vector3 direction);
 private:
     struct hrtf_data{
-        short* ir;
+        float ir[128];
         int a,e;
     };
+    
     std::vector<hrtf_data> hrtf_list_r;
     std::vector<hrtf_data> hrtf_list_l;
     void read_hrtf(char* filename);

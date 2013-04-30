@@ -27,6 +27,7 @@ std::vector<RayTracer::Ray> rayListTmp;
 float const time441k = 22.675736961451247165532879818594f;
 struct respond
 {
+    RayTracer::vector3 direction;
     float strength;
     int time;
 };
@@ -109,11 +110,12 @@ void initCalc()
 
                 //std::cout<<rayListTmp[i].totalDist/0.000340f<<"¦Ìs, "<<rayListTmp[i].strength<<" "<<
                 //    rayListTmp[i].GetDirection()<<std::endl;
-                std::cout<<rayListTmp[i].GetDirection()<<" ";
-                mhrtf.getHRTF(rayListTmp[i].GetDirection());
+                //std::cout<<rayListTmp[i].GetDirection()<<" ";
+                //mhrtf.getHRTF(rayListTmp[i].GetDirection());
                 respond respnd;
                 respnd.strength=rayListTmp[i].strength;
                 respnd.time=(int)((rayListTmp[i].totalDist/0.000340f)/time441k);
+                respnd.direction = rayListTmp[i].GetDirection();
                 respondList.push_back(respnd);
             }
             if(which != MISS)
@@ -132,13 +134,16 @@ void initCalc()
         }
     }
 
-    std::ifstream in("data/hrtf_0_0_r.txt");
+    /*std::ifstream in("data/hrtf_0_0_r.txt");
     float hrtf[128]={0.0f};
-    for(int i=0;i<128;++i) in>>hrtf[i];
+    for(int i=0;i<128;++i) in>>hrtf[i];*/
+    float* hrtf; 
     float response[1024]={0.0f};
-
+    hrtf::ir_both ir;
     for(int i=0;i<respondList.size();++i)
     {
+        ir = mhrtf.getHRTF(respondList[i].direction);
+        hrtf = ir.ir_l;
         for(int j=0;j<128;++j)
         {
             response[respondList[i].time+j]+=(hrtf[j]*respondList[i].strength);
@@ -149,9 +154,9 @@ void initCalc()
     printf( "%f seconds\n", duration );
 
     std::ofstream out("data/response.txt");
-    out<<"double a[1024]={";
-    for(int i=0;i<1024;++i) out<<response[i]<<",";
-    out<<"}"<<std::endl;
+    out<<"a =[";
+    for(int i=0;i<1024;++i) out<<response[i]<<" ";
+    out<<"]"<<std::endl;
 
 }
 std::vector<RayTracer::Ray> rayList;

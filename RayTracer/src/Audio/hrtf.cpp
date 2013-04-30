@@ -12,14 +12,7 @@ hrtf::hrtf(char* Path)
 }
 hrtf::~hrtf()
 {
-    for(unsigned int i=0; i<hrtf_list_r.size(); ++i)
-    {
-        free(hrtf_list_r[i].ir);
-    }
-    for(unsigned int i=0; i<hrtf_list_l.size(); ++i)
-    {
-        free(hrtf_list_l[i].ir);
-    }
+
 }
 void hrtf::load(char* Path)
 {
@@ -68,7 +61,13 @@ void hrtf::read_hrtf(char* filename)
     char drive[16],dir[128],fname[128],ext[16];
     char fname_cpy[128];
     
-    data.ir = mWav.readWavFileData(filename, fileSize);
+    short* ir = mWav.readWavFileData(filename, fileSize);
+    for(int i=0;i<128;++i)
+    {
+        data.ir[i]=(ir[i])/32768.0f;
+        //printf("%d ",ir[i]);
+    }
+    //printf("\n");
     _splitpath(filename,drive,dir,fname,ext);
 
     strcpy(fname_cpy, fname);
@@ -79,13 +78,20 @@ void hrtf::read_hrtf(char* filename)
     token = strtok(NULL, "a");
     data.a = atoi (token);
     if(fname[0]=='R')
-        {printf("R ");hrtf_list_r.push_back(data);}
+    {
+        //printf("R ");
+        hrtf_list_r.push_back(data);
+    }
     else
-        {printf("L ");hrtf_list_l.push_back(data);}
-    printf("fname:%s e:%d a:%d\n",fname,data.a,data.e);
+    {
+        //printf("L ");
+        hrtf_list_l.push_back(data);
+    }
+    //printf("fname:%s e:%d a:%d\n",fname,data.a,data.e);
 
 }
-short** hrtf::getHRTF(RayTracer::vector3 direction)
+
+hrtf::ir_both hrtf::getHRTF(RayTracer::vector3 direction)
 {
     direction=-direction;
     float yaw = atan2(direction.y, direction.x)*180.0f/PI;
@@ -103,7 +109,7 @@ short** hrtf::getHRTF(RayTracer::vector3 direction)
     }
 
     min_dist = 1000.0f;
-    short* target_ir[2];
+    ir_both target_ir;
     for(int i=0; i<hrtf_list_r.size(); ++i)
     {
         if(hrtf_list_r[i].a != h) continue;
@@ -111,8 +117,8 @@ short** hrtf::getHRTF(RayTracer::vector3 direction)
         {
             min_dist = fabs((hrtf_list_r[i].e-180)-yaw);
             e = hrtf_list_r[i].e;
-            target_ir[0] = hrtf_list_l[i].ir;
-            target_ir[1] = hrtf_list_r[i].ir;
+            target_ir.ir_l = hrtf_list_l[i].ir;
+            target_ir.ir_r = hrtf_list_r[i].ir;
         }
     }
 
