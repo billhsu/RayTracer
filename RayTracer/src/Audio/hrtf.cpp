@@ -62,7 +62,7 @@ void hrtf::read_hrtf(char* filename)
     char fname_cpy[128];
     
     short* ir = mWav.readWavFileData(filename, fileSize);
-    for(int i=0;i<128;++i)
+    for(int i=0;i<512;++i)
     {
         data.ir[i]=(ir[i])/32768.0f;
         //printf("%d ",ir[i]);

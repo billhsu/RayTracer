@@ -17,6 +17,7 @@
 #include "common.h"
 #include "time.h"
 #include "Audio/hrtf.h"
+#include "Audio/wav.h"
 
 hrtf mhrtf("data\\hrtf");
 float rot_x=0.0f,rot_y=0.0f;
@@ -24,6 +25,7 @@ DWORD startTime;
 RayTracer::Scene scene;
 std::vector<RayTracer::Ray> rayListTmp;
 
+wav mWav;
 float response_r[1024]={0.0f};
 float response_l[1024]={0.0f};
 
@@ -35,12 +37,14 @@ struct respond
     int time;
 };
 std::vector<respond> respondList;
-
+short* music;
 //Compute ray tracing by ray simulation 
 void initCalc()
 {
-    mhrtf.getHRTF(RayTracer::vector3(1,0,-1));
-
+    long filelen;
+    music = mWav.readWavFileData("Res/default.wav",filelen);
+    printf("%d\n",sizeof(music));
+    mWav.openDevice();
     RayTracer::Scene scene;
     for(int theta=0;theta<30;++theta)
     {
@@ -141,13 +145,13 @@ void initCalc()
     float hrtf[128]={0.0f};
     for(int i=0;i<128;++i) in>>hrtf[i];*/
     float* hrtf; 
-    float response[1024]={0.0f};
+    float response[2048]={0.0f};
     hrtf::ir_both ir;
     for(int i=0;i<respondList.size();++i)
     {
         ir = mhrtf.getHRTF(respondList[i].direction);
         hrtf = ir.ir_l;
-        for(int j=0;j<128;++j)
+        for(int j=0;j<512;++j)
         {
             response[respondList[i].time+j]+=(hrtf[j]*respondList[i].strength);
         }
