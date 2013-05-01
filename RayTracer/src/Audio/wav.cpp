@@ -63,11 +63,11 @@ short* wav::parseWav(char *data)
                 buffer = (short*) malloc(mDataChunk.chunkDataSize);
                 memcpy(buffer, mPtr, mDataChunk.chunkDataSize);
 
-                printf("sampleRate: %d\nnChannels: %d\nchunkDataSize: %d\n", 
+                /*printf("sampleRate: %d\nnChannels: %d\nchunkDataSize: %d\n", 
                     mFmtChunk.sampleRate,
                     mFmtChunk.numChannels,
                     mDataChunk.chunkDataSize);
-                
+                */
                 wf.wFormatTag = mFmtChunk.compressionCode;
                 wf.nChannels = mFmtChunk.numChannels;
                 wf.nSamplesPerSec = mFmtChunk.sampleRate;

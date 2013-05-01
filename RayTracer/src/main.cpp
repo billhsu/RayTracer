@@ -26,8 +26,8 @@ RayTracer::Scene scene;
 std::vector<RayTracer::Ray> rayListTmp;
 
 wav mWav;
-float response_r[1024]={0.0f};
-float response_l[1024]={0.0f};
+float response_r[2048]={0.0f};
+float response_l[2048]={0.0f};
 
 float const time441k = 22.675736961451247165532879818594f;
 struct respond
@@ -43,7 +43,7 @@ void initCalc()
 {
     long filelen;
     music = mWav.readWavFileData("Res/default.wav",filelen);
-    printf("%d\n",sizeof(music));
+
     mWav.openDevice();
     RayTracer::Scene scene;
     for(int theta=0;theta<30;++theta)
@@ -145,7 +145,6 @@ void initCalc()
     float hrtf[128]={0.0f};
     for(int i=0;i<128;++i) in>>hrtf[i];*/
     float* hrtf; 
-    float response[2048]={0.0f};
     hrtf::ir_both ir;
     for(int i=0;i<respondList.size();++i)
     {
@@ -153,16 +152,45 @@ void initCalc()
         hrtf = ir.ir_l;
         for(int j=0;j<512;++j)
         {
-            response[respondList[i].time+j]+=(hrtf[j]*respondList[i].strength);
+            response_l[respondList[i].time+j]+=(hrtf[j]*respondList[i].strength);
+        }
+        hrtf = ir.ir_r;
+        for(int j=0;j<512;++j)
+        {
+            response_r[respondList[i].time+j]+=(hrtf[j]*respondList[i].strength);
         }
     }
+    short* buffer2 = new short[18144*2];
+    float response[2048]={0.0};
+    response[0] = 1.0f;
+    for ( int i = 0; i < 18144*2; i+=2 )
+    {
+        buffer2[i] = 0;                       // set to zero before sum
+        for ( int j = 0; j < 2048; j++ )
+        {
+            buffer2[i] += (short)(music[i - j*2] * response[j]);    // convolve: multiply and accumulate
+        }
+    }
+    for ( int i = 1; i < 18144*2; i+=2 )
+    {
+        buffer2[i] = 0;                       // set to zero before sum
+        for ( int j = 0; j < 2048; j++ )
+        {
+            buffer2[i] += (short)(music[i - j*2] * response[j]);    // convolve: multiply and accumulate
+        }
+    }
+    mWav.playWave(buffer2,18144*4);
+
     finish = clock();
     double duration = (double)(finish - start) / CLOCKS_PER_SEC;
     printf( "%f seconds\n", duration );
 
     std::ofstream out("data/response.txt");
     out<<"a =[";
-    for(int i=0;i<1024;++i) out<<response[i]<<" ";
+    for(int i=0;i<2048;++i) out<<response_l[i]<<" ";
+    out<<"]"<<std::endl;
+    out<<"b =[";
+    for(int i=0;i<2048;++i) out<<response_r[i]<<" ";
     out<<"]"<<std::endl;
 
 }
