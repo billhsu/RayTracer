@@ -46,6 +46,9 @@ void initCalc()
     long filelen;
     music = mWav.readWavFileData("Res/tada.wav",filelen);
     rayListTmp.clear();
+    respondList.clear();
+    memset(response_l,0,2048);
+    memset(response_r,0,2048);
     mWav.openDevice();
     RayTracer::Scene scene;
     for(int theta=0;theta<30;++theta)
@@ -129,7 +132,7 @@ void initCalc()
             if(which != MISS)
             {
                 rayListTmp[i].totalDist+=dist_;
-                rayListTmp[i].strength-=dist_/20.0f;
+                rayListTmp[i].strength-=dist_/40.0f;
                 rayListTmp[i].strength-=0.25f;
                 RayTracer::vector3 end=rayListTmp[i].GetOrigin()+rayListTmp[i].GetDirection()*(dist_*0.999f);
                 RayTracer::vector3 dir=-2*DOT(scene.primList[which].GetNormal(),rayListTmp[i].GetDirection())
@@ -192,8 +195,6 @@ void initCalc()
 
         for(j = i, k = 0; k < kernelSize; --j, ++k)
             buffer2[i*2+1] += music[j*2+1] * response_r[k];
-        if(buffer2[i*2]>=1)buffer2[i*2]=1;
-        else if(buffer2[i*2]<=-1)buffer2[i*2]=-1;
     }
 
     // convolution from out[0] to out[kernelSize-2]
@@ -203,8 +204,6 @@ void initCalc()
 
         for(j = i, k = 0; j >= 0; --j, ++k)
             buffer2[i*2+1] += music[j*2+1] * response_r[k];
-        if(buffer2[i*2+1]>=1)buffer2[i*2+1]=1;
-        else if(buffer2[i*2+1]<=-1)buffer2[i*2+1]=-1;
     }
 
 
