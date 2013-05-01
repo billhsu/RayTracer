@@ -99,8 +99,8 @@ hrtf::ir_both hrtf::getHRTF(RayTracer::vector3 direction)
         sqrt(direction.x*direction.x+direction.z*direction.z))*180.0f/PI;
     if( yaw<0 ) yaw = 360.0f + yaw;
     yaw = 360.0f - yaw;
-    yaw = yaw + 90.0f;
-    if( yaw>=360.0f) yaw -= 360.0f;
+    //yaw = yaw + 270.0f;
+    //if( yaw>=360.0f) yaw -= 360.0f;
 
     float min_dist = 1000.0f;
     int a,e;
