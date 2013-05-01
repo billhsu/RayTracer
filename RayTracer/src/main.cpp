@@ -36,7 +36,7 @@ std::vector<respond> respondList;
 //Compute ray tracing by ray simulation 
 void initCalc()
 {
-    mhrtf.getHRTF(RayTracer::vector3(1,0,0));
+    mhrtf.getHRTF(RayTracer::vector3(1,0,-1));
 
     RayTracer::Scene scene;
     for(int theta=0;theta<30;++theta)
