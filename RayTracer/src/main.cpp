@@ -179,9 +179,9 @@ void initCalc()
             buffer2[i] += (short)(music[i - j*2] * response[j]);    // convolve: multiply and accumulate
         }
     }
-    mWav.playWave(buffer2,18144*4);
-
+    
     finish = clock();
+    mWav.playWave(buffer2,18144*4);
     double duration = (double)(finish - start) / CLOCKS_PER_SEC;
     printf( "%f seconds\n", duration );
 
