@@ -39,7 +39,7 @@ struct respond
 std::vector<respond> respondList;
 short* music;
 //Compute ray tracing by ray simulation 
-RayTracer::vector3 origin = RayTracer::vector3(1.5f,0.0f,0.0f);
+RayTracer::vector3 origin = RayTracer::vector3(-2.5f,0.0f,0.0f);
 void initCalc()
 {
     long filelen;
