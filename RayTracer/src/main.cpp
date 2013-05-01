@@ -39,13 +39,13 @@ struct respond
 std::vector<respond> respondList;
 short* music;
 //Compute ray tracing by ray simulation 
-RayTracer::vector3 origin = RayTracer::vector3(-2.0f,0.0f,0.0f);
-RayTracer::vector3 listener  = RayTracer::vector3(0.0f,0.0f,0.0f);
+RayTracer::vector3 origin = RayTracer::vector3(0.0f,0.0f,0.0f);
+RayTracer::vector3 listener  = RayTracer::vector3(-2.0f,0.0f,0.0f);
 void initCalc()
 {
     long filelen;
     music = mWav.readWavFileData("Res/tada.wav",filelen);
-
+    rayListTmp.clear();
     mWav.openDevice();
     RayTracer::Scene scene;
     for(int theta=0;theta<30;++theta)
@@ -65,8 +65,7 @@ void initCalc()
         }
     }
 
-    glutGet(GLUT_ELAPSED_TIME);
-    std::cout<<"Sound position:(1.5,0,0)  Listener position: (-1.5,0,0)"<<std::endl;
+    std::cout<<"Sound position:"<<origin<<" Listener position: "<<listener<<std::endl;
     startTime = GetTickCount();
     RayTracer::Primitive p= RayTracer::Primitive(RayTracer::vector3(1,-1.5,-1.5),
         RayTracer::vector3(1,-1.5,1.5),
@@ -146,6 +145,7 @@ void initCalc()
     /*std::ifstream in("data/hrtf_0_0_r.txt");
     float hrtf[128]={0.0f};
     for(int i=0;i<128;++i) in>>hrtf[i];*/
+    printf("stage 2\n");
     float* hrtf; 
     hrtf::ir_both ir;
     for(int i=0;i<respondList.size();++i)
@@ -192,6 +192,8 @@ void initCalc()
 
         for(j = i, k = 0; k < kernelSize; --j, ++k)
             buffer2[i*2+1] += music[j*2+1] * response_r[k];
+        if(buffer2[i*2]>=1)buffer2[i*2]=1;
+        else if(buffer2[i*2]<=-1)buffer2[i*2]=-1;
     }
 
     // convolution from out[0] to out[kernelSize-2]
@@ -201,26 +203,54 @@ void initCalc()
 
         for(j = i, k = 0; j >= 0; --j, ++k)
             buffer2[i*2+1] += music[j*2+1] * response_r[k];
+        if(buffer2[i*2+1]>=1)buffer2[i*2+1]=1;
+        else if(buffer2[i*2+1]<=-1)buffer2[i*2+1]=-1;
     }
 
 
-
+    
     finish = clock();
     mWav.playWave(buffer2,71296*4);
+    free(music);
+    free(buffer2);
     mWav.closeDevice();
     double duration = (double)(finish - start) / CLOCKS_PER_SEC;
     printf( "%f seconds\n", duration );
 
-    std::ofstream out("data/response.txt");
+    /*std::ofstream out("data/response.txt");
     out<<"a =[";
     for(int i=0;i<2048;++i) 
     {
         out<<response_l[i]<<" "<<response_r[i]<<"; ";
     }
     out<<"]"<<std::endl;
+    */
 
 }
 std::vector<RayTracer::Ray> rayList;
+
+void keyinput(unsigned char key, int x, int y)
+{
+    switch(key)
+    {
+    case 'w':
+        listener.x+=0.1f;
+        break;
+    case 's':
+        listener.x-=0.1f;
+        break;
+    case 'a':
+        listener.z+=0.1f;
+        break;
+    case 'd':
+        listener.z-=0.1f;
+        break;
+    case 'p':
+        initCalc();
+        break;
+    }
+}
+
 
 void init(void)
 {
@@ -250,7 +280,7 @@ void init(void)
     ray.GetDirection().Normalize();
     rayList.push_back(ray);*/
     glutGet(GLUT_ELAPSED_TIME);
-    std::cout<<"Sound position:(1.5,0,0)  Listener position: (-1.5,0,0)"<<std::endl;
+    //std::cout<<"Sound position:(1.5,0,0)  Listener position: (-1.5,0,0)"<<std::endl;
     startTime = GetTickCount();
     RayTracer::Primitive p= RayTracer::Primitive(RayTracer::vector3(1,-1.5,-1.5),
         RayTracer::vector3(1,-1.5,1.5),
@@ -313,8 +343,8 @@ void display(void)
         if(dist.Length()<=0.5f)
         {
             rayList[i].active=false;
-            std::cout<<"Hit# "<<rayList[i].microseconds<<"¦Ìs, Strength:"<<
-                rayList[i].strength<<", Direction:"<<rayList[i].GetDirection()<<std::endl;
+            //std::cout<<"Hit# "<<rayList[i].microseconds<<"¦Ìs, Strength:"<<
+            //    rayList[i].strength<<", Direction:"<<rayList[i].GetDirection()<<std::endl;
             glColor3f(1.0, 1.0, 0.0);
         }
         
@@ -363,6 +393,7 @@ int main(int argc, char** argv)
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
     glutPassiveMotionFunc(mouse);
+    glutKeyboardFunc(keyinput);
 
     glutMainLoop();
     return 0;

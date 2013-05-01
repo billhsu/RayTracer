@@ -64,9 +64,10 @@ void hrtf::read_hrtf(char* filename)
     short* ir = mWav.readWavFileData(filename, fileSize);
     for(int i=0;i<512;++i)
     {
-        data.ir[i]=(ir[i])/32768.0f;
+        data.ir[i]=(ir[i])/32768.0f/2.0f;
         //printf("%d ",ir[i]);
     }
+    free(ir);
     //printf("\n");
     _splitpath(filename,drive,dir,fname,ext);
 
@@ -94,7 +95,7 @@ void hrtf::read_hrtf(char* filename)
 hrtf::ir_both hrtf::getHRTF(RayTracer::vector3 direction)
 {
     direction=-direction;
-    float yaw = atan2(-direction.z, direction.x)*180.0f/PI;
+    float yaw = atan2(direction.z, direction.x)*180.0f/PI;
     float pitch = atan2(direction.y, 
         sqrt(direction.x*direction.x+direction.z*direction.z))*180.0f/PI;
     if( yaw<0 ) yaw = 360.0f + yaw;
