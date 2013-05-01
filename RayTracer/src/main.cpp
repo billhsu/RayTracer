@@ -40,7 +40,7 @@ std::vector<respond> respondList;
 short* music;
 //Compute ray tracing by ray simulation 
 RayTracer::vector3 origin = RayTracer::vector3(0.0f,0.0f,0.0f);
-RayTracer::vector3 listener  = RayTracer::vector3(-2.0f,0.0f,0.0f);
+RayTracer::vector3 listener  = RayTracer::vector3(1.0f,0.0f,1.0f);
 void initCalc()
 {
     long filelen;
@@ -133,7 +133,7 @@ void initCalc()
             {
                 rayListTmp[i].totalDist+=dist_;
                 rayListTmp[i].strength-=dist_/40.0f;
-                rayListTmp[i].strength-=0.25f;
+                rayListTmp[i].strength/=4;
                 RayTracer::vector3 end=rayListTmp[i].GetOrigin()+rayListTmp[i].GetDirection()*(dist_*0.999f);
                 RayTracer::vector3 dir=-2*DOT(scene.primList[which].GetNormal(),rayListTmp[i].GetDirection())
                     *scene.primList[which].GetNormal()+rayListTmp[i].GetDirection();
@@ -216,14 +216,14 @@ void initCalc()
     double duration = (double)(finish - start) / CLOCKS_PER_SEC;
     printf( "%f seconds\n", duration );
 
-    /*std::ofstream out("data/response.txt");
+    std::ofstream out("data/response.txt");
     out<<"a =[";
     for(int i=0;i<2048;++i) 
     {
         out<<response_l[i]<<" "<<response_r[i]<<"; ";
     }
     out<<"]"<<std::endl;
-    */
+    
 
 }
 std::vector<RayTracer::Ray> rayList;
