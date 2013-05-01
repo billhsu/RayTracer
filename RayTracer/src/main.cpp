@@ -39,7 +39,8 @@ struct respond
 std::vector<respond> respondList;
 short* music;
 //Compute ray tracing by ray simulation 
-RayTracer::vector3 origin = RayTracer::vector3(-2.5f,0.0f,0.0f);
+RayTracer::vector3 origin = RayTracer::vector3(-2.0f,0.0f,0.0f);
+RayTracer::vector3 listener  = RayTracer::vector3(0.0f,0.0f,0.0f);
 void initCalc()
 {
     long filelen;
@@ -95,7 +96,7 @@ void initCalc()
                 }
             }
 
-            RayTracer::vector3 L = RayTracer::vector3(-1.5f,0.0f,0.0f) - rayListTmp[i].GetOrigin();
+            RayTracer::vector3 L = listener - rayListTmp[i].GetOrigin();
             float Tca = DOT(L,rayListTmp[i].GetDirection());
             float d2;
             float dist_to_listener = 1000.0f;
@@ -275,7 +276,7 @@ void display(void)
     glRotatef(rot_y,0.0f,1.0f,0.0f);
     
     glPushMatrix();
-    glTranslatef (-1.5f, 0.0f, 0.0f);
+    glTranslatef (listener.x, listener.y, listener.z);
     glutWireSphere (0.5f, 10.0f, 10.0f);
     glPopMatrix();
 
@@ -308,7 +309,7 @@ void display(void)
         }
         else glColor3f(rayList[i].strength,0.0f,0.0f);
         dir = rayList[i].GetDirection();
-        RayTracer::vector3 dist = end-RayTracer::vector3(-1.5f,0.0f,0.0f);
+        RayTracer::vector3 dist = end-listener;
         if(dist.Length()<=0.5f)
         {
             rayList[i].active=false;
