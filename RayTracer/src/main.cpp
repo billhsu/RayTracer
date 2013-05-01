@@ -24,6 +24,9 @@ DWORD startTime;
 RayTracer::Scene scene;
 std::vector<RayTracer::Ray> rayListTmp;
 
+float response_r[1024]={0.0f};
+float response_l[1024]={0.0f};
+
 float const time441k = 22.675736961451247165532879818594f;
 struct respond
 {

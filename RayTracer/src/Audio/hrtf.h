@@ -21,6 +21,7 @@ public:
         float* ir_r;
         float* ir_l;
     };
+    wav mWav;
     void load(char* Path);
     ir_both getHRTF(RayTracer::vector3 direction);
 private:
@@ -32,7 +33,6 @@ private:
     std::vector<hrtf_data> hrtf_list_r;
     std::vector<hrtf_data> hrtf_list_l;
     void read_hrtf(char* filename);
-    wav mWav;
 };
 
 #endif

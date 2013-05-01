@@ -7,8 +7,9 @@ class wav{
 
         wav(void);
         short *readWavFileData(char *szFilename, long &dataLengthOut);
+        void openDevice();
         void playWave(short* buffer,int length);
-
+        void closeDevice();
     private:
         struct wavFileHeader
         {

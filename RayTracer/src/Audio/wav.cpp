@@ -87,18 +87,26 @@ short* wav::parseWav(char *data)
     else
         printf("INvalid WAV\n");
 }
-
+void wav::openDevice()
+{
+    waveOutOpen(&hWaveOut,WAVE_MAPPER,&wf,0,0,CALLBACK_NULL);
+}
+void wav::closeDevice()
+{
+    waveOutClose(hWaveOut);
+}
 void wav::playWave(short* buffer,int length)
 {
     wh.lpData = (char*)buffer;
     wh.dwBufferLength = length;
     wh.dwFlags = 0;
     wh.dwLoops = 0;
-    printf("start\n");
-    waveOutOpen(&hWaveOut,WAVE_MAPPER,&wf,0,0,CALLBACK_NULL);
+    //printf("start\n");
+
     waveOutPrepareHeader(hWaveOut,(wavehdr_tag*)&wh,sizeof(wh));
     waveOutWrite(hWaveOut,(wavehdr_tag*)&wh,sizeof(wh));
-
+    do {}
+    while (!(wh.dwFlags & WHDR_DONE));
     waveOutUnprepareHeader(hWaveOut,(wavehdr_tag*)&wh,sizeof(wh));
-    waveOutClose(hWaveOut); 
+    
 }
