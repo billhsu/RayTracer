@@ -39,10 +39,11 @@ struct respond
 std::vector<respond> respondList;
 short* music;
 //Compute ray tracing by ray simulation 
+RayTracer::vector3 origin = RayTracer::vector3(1.5f,0.0f,0.0f);
 void initCalc()
 {
     long filelen;
-    music = mWav.readWavFileData("Res/default.wav",filelen);
+    music = mWav.readWavFileData("Res/tada.wav",filelen);
 
     mWav.openDevice();
     RayTracer::Scene scene;
@@ -54,7 +55,7 @@ void initCalc()
             dir.x = cosf(2.0f*PI/30.0f*theta)*sinf(2.0f*PI/30.0f*phi);
             dir.y = sinf(2.0f*PI/30.0f*theta)*sinf(2.0f*PI/30.0f*phi);
             dir.z = cosf(2.0f*PI/30.0f*phi);
-            RayTracer::Ray ray(RayTracer::vector3(1.5f,0.0f,0.0f), dir);
+            RayTracer::Ray ray(origin, dir);
             ray.strength=1.0f;
             ray.microseconds=0;
             ray.totalDist = 0.0f;
@@ -160,37 +161,61 @@ void initCalc()
             response_r[respondList[i].time+j]+=(hrtf[j]*respondList[i].strength);
         }
     }
-    short* buffer2 = new short[18144*2];
+    short* buffer2 = new short[71296*2];
     float response[2048]={0.0};
     response[0] = 1.0f;
-    for ( int i = 0; i < 18144*2; i+=2 )
+    int i, j, k;
+    int kernelSize=2048;
+    int dataSize = 71296;
+    for(i = kernelSize-1; i < dataSize; ++i)
     {
-        buffer2[i] = 0;                       // set to zero before sum
-        for ( int j = 0; j < 2048; j++ )
-        {
-            buffer2[i] += (short)(music[i - j*2] * response[j]);    // convolve: multiply and accumulate
-        }
+        buffer2[i*2] = 0;                             // init to 0 before accumulate
+
+        for(j = i, k = 0; k < kernelSize; --j, ++k)
+            buffer2[i*2] += music[j*2] * response_l[k];
     }
-    for ( int i = 1; i < 18144*2; i+=2 )
+
+    // convolution from out[0] to out[kernelSize-2]
+    for(i = 0; i < kernelSize - 1; ++i)
     {
-        buffer2[i] = 0;                       // set to zero before sum
-        for ( int j = 0; j < 2048; j++ )
-        {
-            buffer2[i] += (short)(music[i - j*2] * response[j]);    // convolve: multiply and accumulate
-        }
+        buffer2[i*2] = 0;                             // init to 0 before sum
+
+        for(j = i, k = 0; j >= 0; --j, ++k)
+            buffer2[i*2] += music[j*2] * response_l[k];
     }
     
+    //////////////////////////////////////////////////////////////////////////
+    for(i = kernelSize-1; i < dataSize; ++i)
+    {
+        buffer2[i*2+1] = 0;                             // init to 0 before accumulate
+
+        for(j = i, k = 0; k < kernelSize; --j, ++k)
+            buffer2[i*2+1] += music[j*2+1] * response_r[k];
+    }
+
+    // convolution from out[0] to out[kernelSize-2]
+    for(i = 0; i < kernelSize - 1; ++i)
+    {
+        buffer2[i*2+1] = 0;                             // init to 0 before sum
+
+        for(j = i, k = 0; j >= 0; --j, ++k)
+            buffer2[i*2+1] += music[j*2+1] * response_r[k];
+    }
+
+
+
     finish = clock();
-    mWav.playWave(buffer2,18144*4);
+    mWav.playWave(buffer2,71296*4);
+    mWav.closeDevice();
     double duration = (double)(finish - start) / CLOCKS_PER_SEC;
     printf( "%f seconds\n", duration );
 
     std::ofstream out("data/response.txt");
     out<<"a =[";
-    for(int i=0;i<2048;++i) out<<response_l[i]<<" ";
-    out<<"]"<<std::endl;
-    out<<"b =[";
-    for(int i=0;i<2048;++i) out<<response_r[i]<<" ";
+    for(int i=0;i<2048;++i) 
+    {
+        out<<response_l[i]<<" "<<response_r[i]<<"; ";
+    }
     out<<"]"<<std::endl;
 
 }
@@ -209,7 +234,7 @@ void init(void)
             dir.x = cosf(2.0f*PI/30.0f*theta)*sinf(2.0f*PI/30.0f*phi);
             dir.y = sinf(2.0f*PI/30.0f*theta)*sinf(2.0f*PI/30.0f*phi);
             dir.z = cosf(2.0f*PI/30.0f*phi);
-            RayTracer::Ray ray(RayTracer::vector3(1.5f,0.0f,0.0f), dir);
+            RayTracer::Ray ray(origin, dir);
             ray.strength=1.0f;
             ray.microseconds=0;
             ray.totalDist = 0.0f;
