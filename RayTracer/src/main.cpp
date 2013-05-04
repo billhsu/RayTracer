@@ -41,6 +41,8 @@ short* music;
 //Compute ray tracing by ray simulation 
 RayTracer::vector3 origin = RayTracer::vector3(0.0f,0.0f,0.0f);
 RayTracer::vector3 listener  = RayTracer::vector3(1.0f,0.0f,1.0f);
+float rot_z = 0.0f;
+
 void initCalc()
 {
     long filelen;
@@ -243,6 +245,12 @@ void keyinput(unsigned char key, int x, int y)
         break;
     case 'd':
         listener.z-=0.1f;
+        break;
+    case 'z':
+        rot_z+=0.1f;
+        break;
+    case 'c':
+        rot_z-=0.1f;
         break;
     case 'p':
         initCalc();
