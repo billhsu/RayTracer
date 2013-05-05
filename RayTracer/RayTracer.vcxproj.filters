@@ -22,6 +22,9 @@
     <Filter Include="Source Files\Audio">
       <UniqueIdentifier>{6d27528b-928d-4de8-ac51-f9b4ab90b0ad}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Math">
+      <UniqueIdentifier>{1203074a-4516-4423-b36b-bc43c3685a2a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -45,6 +48,9 @@
     <ClCompile Include="src\Audio\wav.cpp">
       <Filter>Source Files\Audio</Filter>
     </ClCompile>
+    <ClCompile Include="src\Math\Matrices.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scene\Primitive.h">
@@ -67,6 +73,12 @@
     </ClInclude>
     <ClInclude Include="src\Audio\wav.h">
       <Filter>Source Files\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Math\Matrices.h">
+      <Filter>Source Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Math\Vectors.h">
+      <Filter>Source Files\Math</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -18,6 +18,7 @@
 #include "time.h"
 #include "Audio/hrtf.h"
 #include "Audio/wav.h"
+#include "Math/Matrices.h"
 
 hrtf mhrtf("data\\hrtf");
 float rot_x=0.0f,rot_y=0.0f;
@@ -155,10 +156,16 @@ void initCalc()
     hrtf::ir_both ir;
     for(int i=0;i<respondList.size();++i)
     {
-        respondList[i].direction.x = respondList[i].direction.x*cos(rot_z)+respondList[i].direction.z*sin(rot_z);
-        respondList[i].direction.z = -respondList[i].direction.x*sin(rot_z)+respondList[i].direction.z*cos(rot_z);
-
-
+        Matrix4 m1;
+        m1.rotateY(rot_z);         // rotate 45 degree about x-axis
+        Vector3 newDir;
+        newDir.x=respondList[i].direction.x;
+        newDir.y=respondList[i].direction.y;
+        newDir.z=respondList[i].direction.z;
+        newDir=m1*newDir;
+        respondList[i].direction.x=newDir.x;
+        respondList[i].direction.y=newDir.y;
+        respondList[i].direction.z=newDir.z;
         ir = mhrtf.getHRTF(respondList[i].direction);
         hrtf = ir.ir_l;
         for(int j=0;j<128;++j)
@@ -325,7 +332,7 @@ void display(void)
     glRotatef(rot_z,0.0f,1.0f,0.0f);
     glBegin(GL_LINES);
     glVertex3f(0,0,0);
-    glVertex3f(0,0,-1);
+    glVertex3f(-1,0,0);
     glEnd();
     glutWireSphere (0.5f, 10.0f, 10.0f);
     glPopMatrix();
