@@ -86,7 +86,7 @@ void SerialPort::recv_complete(const boost::system::error_code& error, size_t by
     if (!error) 
     { // read completed, so process the data 
         //cout.write(recv_msg, bytes_transferred); // echo to standard output
-        
+        m_recv_callback(bytes_transferred,(BYTE*)recv_msg);
         recv_start(); // start waiting for another asynchronous read again 
     } 
     else 

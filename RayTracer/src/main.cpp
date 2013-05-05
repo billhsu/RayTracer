@@ -2,7 +2,7 @@
 // Shipeng Xu 2013
 // billhsu.x@gmail.com
 // Shanghai University
-
+#define WIN32_LEAN_AND_MEAN
 #include <stdlib.h>
 #include "glut.h"
 #include <iostream>
@@ -19,6 +19,7 @@
 #include "Audio/hrtf.h"
 #include "Audio/wav.h"
 #include "Math/Matrices.h"
+#include "SerialPort/SerialPort.h"
 
 hrtf mhrtf("data\\hrtf");
 float rot_x=0.0f,rot_y=0.0f;
@@ -43,6 +44,19 @@ short* music;
 RayTracer::vector3 origin = RayTracer::vector3(0.0f,0.0f,0.0f);
 RayTracer::vector3 listener  = RayTracer::vector3(1.0f,0.0f,1.0f);
 float rot_z = 0.0f;
+
+bool start_flag = false;
+int start_match_pos = 0;
+int recv_cnt = 0;
+
+BYTE recv_data[26]={0};
+BYTE start_mark[]={0xa5,0x5a,0x12,0xa1};
+int imu_result[14]={0};
+float yaw=0.0f,pitch=0.0f,roll=0.0f;
+
+
+
+SerialPort serial;
 
 void initCalc()
 {
@@ -154,7 +168,7 @@ void initCalc()
     printf("stage 2\n");
     float* hrtf; 
     hrtf::ir_both ir;
-    for(int i=0;i<respondList.size();++i)
+    for(unsigned int i=0;i<respondList.size();++i)
     {
         Matrix4 m1;
         m1.rotateY(rot_z);
@@ -421,6 +435,57 @@ void mouse(int x,int y)
     rot_y=(x-300.f)/300.0f*180.0f;
     rot_x=-(y-200.f)/200.0f*180.0f;
 }
+void recv_callback(int length, BYTE* recv)
+{
+    for(int i=0;i<length;++i)
+    {
+
+        BYTE b = recv[i];
+        if (b<0) b+= 256;
+        if (!start_flag)
+        {
+            if (b == start_mark[start_match_pos])
+            {
+
+                start_match_pos++;
+                if (start_match_pos == 4)
+                {
+                    start_flag = true; 
+                    recv_cnt = 0;
+                    start_match_pos = 0;
+                }
+            }
+            else start_match_pos = 0;
+        }
+        else
+        {
+
+            recv_data[recv_cnt] = b;
+            ++recv_cnt;
+            if (recv_cnt == 16) 
+            {
+                for (int ia = 0; ia < 6; ia+=2)
+                {
+                    imu_result[ia / 2] = (recv_data[ia] << 8 | recv_data[ia + 1]);
+                    if (imu_result[ia / 2] >= 32768)
+                    {
+                        imu_result[ia / 2] -= 32768;
+                        imu_result[ia / 2] = -imu_result[ia / 2];
+                    }
+                }
+                recv_cnt = 0;
+                yaw = imu_result[0] / 10.0;
+                pitch = imu_result[1] / 10.0;
+                roll = imu_result[2] / 10.0;
+                start_flag = false;
+                rot_y=yaw;
+
+            }
+        }
+    }
+
+
+}
 int main(int argc, char** argv)
 {
     glutInit(&argc, argv);
@@ -434,7 +499,10 @@ int main(int argc, char** argv)
     glutReshapeFunc(reshape);
     glutPassiveMotionFunc(mouse);
     glutKeyboardFunc(keyinput);
-
+    std::cout<<"Serial Port Status"<<serial.open("COM22");
+    std::cout<<serial.set_option(115200,0,8,0,0)<<"\n";
+    serial.recv_callback(recv_callback);
     glutMainLoop();
+    serial.close();
     return 0;
 }
