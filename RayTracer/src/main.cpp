@@ -157,7 +157,7 @@ void initCalc()
     for(int i=0;i<respondList.size();++i)
     {
         Matrix4 m1;
-        m1.rotateY(rot_z);         // rotate 45 degree about x-axis
+        m1.rotateY(rot_z);
         Vector3 newDir;
         newDir.x=respondList[i].direction.x;
         newDir.y=respondList[i].direction.y;
@@ -243,24 +243,35 @@ std::vector<RayTracer::Ray> rayList;
 
 void keyinput(unsigned char key, int x, int y)
 {
+    Matrix4 m1,m2;
+    m1.rotateY(rot_z);
+    Vector3 vx=Vector3(-0.1,0,0);
+    vx=m1*vx;
+    m2.rotateY(rot_z+90);
+    Vector3 vz=Vector3(-0.1,0,0);
+    vz=m2*vz;
     switch(key)
     {
     case 'w':
-        listener.x+=0.1f;
+        listener.x+=vx.x;
+        listener.z+=vx.z;
         break;
     case 's':
-        listener.x-=0.1f;
+        listener.x-=vx.x;
+        listener.z-=vx.z;
         break;
     case 'a':
-        listener.z+=0.1f;
+        listener.x+=vz.x;
+        listener.z+=vz.z;
         break;
     case 'd':
-        listener.z-=0.1f;
+        listener.x-=vz.x;
+        listener.z-=vz.z;
         break;
-    case 'z':
+    case 'j':
         rot_z+=1.5f;
         break;
-    case 'c':
+    case 'k':
         rot_z-=1.5f;
         break;
     case 'p':
@@ -331,9 +342,11 @@ void display(void)
     glTranslatef (listener.x, listener.y, listener.z);
     glRotatef(rot_z,0.0f,1.0f,0.0f);
     glBegin(GL_LINES);
+    glColor3f(1.0, 1.0, 0.0);
     glVertex3f(0,0,0);
     glVertex3f(-1,0,0);
     glEnd();
+    glColor3f(0.5, 0.5, 0.5);
     glutWireSphere (0.5f, 10.0f, 10.0f);
     glPopMatrix();
 
