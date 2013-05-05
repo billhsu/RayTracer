@@ -26,8 +26,8 @@ RayTracer::Scene scene;
 std::vector<RayTracer::Ray> rayListTmp;
 
 wav mWav;
-float response_r[2048]={0.0f};
-float response_l[2048]={0.0f};
+float response_r[1024]={0.0f};
+float response_l[1024]={0.0f};
 
 float const time441k = 22.675736961451247165532879818594f;
 struct respond
@@ -49,8 +49,8 @@ void initCalc()
     music = mWav.readWavFileData("Res/tada.wav",filelen);
     rayListTmp.clear();
     respondList.clear();
-    memset(response_l,0,2048);
-    memset(response_r,0,2048);
+    memset(response_l,0,1024);
+    memset(response_r,0,1024);
     mWav.openDevice();
     RayTracer::Scene scene;
     for(int theta=0;theta<30;++theta)
@@ -155,23 +155,27 @@ void initCalc()
     hrtf::ir_both ir;
     for(int i=0;i<respondList.size();++i)
     {
+        respondList[i].direction.x = respondList[i].direction.x*cos(rot_z)+respondList[i].direction.z*sin(rot_z);
+        respondList[i].direction.z = -respondList[i].direction.x*sin(rot_z)+respondList[i].direction.z*cos(rot_z);
+
+
         ir = mhrtf.getHRTF(respondList[i].direction);
         hrtf = ir.ir_l;
-        for(int j=0;j<512;++j)
+        for(int j=0;j<128;++j)
         {
             response_l[respondList[i].time+j]+=(hrtf[j]*respondList[i].strength);
         }
         hrtf = ir.ir_r;
-        for(int j=0;j<512;++j)
+        for(int j=0;j<128;++j)
         {
             response_r[respondList[i].time+j]+=(hrtf[j]*respondList[i].strength);
         }
     }
     short* buffer2 = new short[71296*2];
-    float response[2048]={0.0};
+    float response[1024]={0.0};
     response[0] = 1.0f;
     int i, j, k;
-    int kernelSize=2048;
+    int kernelSize=1024;
     int dataSize = 71296;
     for(i = kernelSize-1; i < dataSize; ++i)
     {
@@ -220,7 +224,7 @@ void initCalc()
 
     std::ofstream out("data/response.txt");
     out<<"a =[";
-    for(int i=0;i<2048;++i) 
+    for(int i=0;i<1024;++i) 
     {
         out<<response_l[i]<<" "<<response_r[i]<<"; ";
     }
@@ -247,13 +251,16 @@ void keyinput(unsigned char key, int x, int y)
         listener.z-=0.1f;
         break;
     case 'z':
-        rot_z+=0.1f;
+        rot_z+=1.5f;
         break;
     case 'c':
-        rot_z-=0.1f;
+        rot_z-=1.5f;
         break;
     case 'p':
         initCalc();
+        break;
+    case 27:
+        exit(0);
         break;
     }
 }
@@ -313,7 +320,13 @@ void display(void)
     glRotatef(rot_y,0.0f,1.0f,0.0f);
     
     glPushMatrix();
+    
     glTranslatef (listener.x, listener.y, listener.z);
+    glRotatef(rot_z,0.0f,1.0f,0.0f);
+    glBegin(GL_LINES);
+    glVertex3f(0,0,0);
+    glVertex3f(0,0,-1);
+    glEnd();
     glutWireSphere (0.5f, 10.0f, 10.0f);
     glPopMatrix();
 

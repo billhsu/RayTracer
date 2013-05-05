@@ -26,7 +26,7 @@ public:
     ir_both getHRTF(RayTracer::vector3 direction);
 private:
     struct hrtf_data{
-        float ir[512];
+        float ir[128];
         int a,e;
     };
     
