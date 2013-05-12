@@ -57,6 +57,7 @@ float yaw=0.0f,pitch=0.0f,roll=0.0f;
 
 
 SerialPort serial;
+short* buffer;
 
 void initCalc()
 {
@@ -197,16 +198,18 @@ void initCalc()
     response[0] = 1.0f;
     int i, j, k;
     int kernelSize=1024;
+    int dataSize = 71296/64;
+    short* buffer1 = hrtf::convAudio(&music[i*71296/64],dataSize,kernelSize,response_l,response_r);
+    
     for(int i=0;i<64;++i)
     {
+        if(i==0)
+        {
 
-    
-    int dataSize = 71296/64;
-    short* buffer2 = hrtf::convAudio(&music[i*71296/64],dataSize,kernelSize,response_l,response_r);
-    
-    mWav.playWave(buffer2,71296*4/64);
-    
-    free(buffer2);
+            mWav.playWave(buffer1,71296*4/64);
+            free(buffer1);
+        }
+        
     }
     free(music);
     finish = clock();
