@@ -60,6 +60,7 @@ SerialPort serial;
 struct convData
 {
     short* buffer;
+    short* buffer_last;
     short* music;
     int dataSize;
     int kernelSize;
@@ -69,10 +70,13 @@ struct convData
 const int divide = 2;
 short* volatile buffer;
 short* volatile buffer_old;
+short* volatile buffer_last;
 DWORD WINAPI convThread(LPVOID data) {
     printf("convThread start\n");
-    hrtf::convAudio(((convData*)data)->buffer,((convData*)data)->music,((convData*)data)->dataSize,
-        ((convData*)data)->kernelSize,((convData*)data)->response_l,((convData*)data)->response_r);
+    hrtf::convAudio(((convData*)data)->buffer,((convData*)data)->buffer_last,
+        ((convData*)data)->music,((convData*)data)->dataSize,
+        ((convData*)data)->kernelSize,((convData*)data)->response_l,
+        ((convData*)data)->response_r);
     printf("buffer address: %d\n",((convData*)data)->buffer);
     printf("convThread end\n");
     return 0;
@@ -216,12 +220,13 @@ void initCalc()
     float response[1024]={0.0};
     response[0] = 1.0f;
 
-    int divide=2;
+    int divide=16;
     int kernelSize=1024;
     int dataSize = 71296/divide;
-    buffer = new short[dataSize*2];
-    buffer_old = new short[dataSize*2];
-    hrtf::convAudio(buffer_old,music,dataSize,kernelSize,response_l,response_r);
+    buffer = new short[(dataSize+kernelSize)*2];
+    buffer_old = new short[(dataSize+kernelSize)*2];
+    buffer_last = new short [kernelSize*2];
+    hrtf::convAudio(buffer_old,buffer_last,music,dataSize,kernelSize,response_l,response_r);
     convData *data = (convData*) malloc(sizeof(convData));
     data->dataSize=dataSize;
     data->kernelSize=kernelSize;
@@ -231,22 +236,24 @@ void initCalc()
     HANDLE myHandle;
     short* tmpbuf;
 
-    mWav.prepWave(buffer_old,71296*4/divide);
+    mWav.prepWave();
 
     for(int i=1;i<divide;++i)
     {
         data->buffer=buffer;
-        data->music=&music[i*71296/divide];
+        data->buffer_last = buffer_last;
+        data->music=&music[i*71296*2/divide];
         myHandle = CreateThread(NULL,0,convThread,(LPVOID)data,0,NULL);
         printf("%d CreateThread\n",i);
         mWav.playWave(buffer_old,71296*4/divide);
 
-        //WaitForSingleObject(myHandle,INFINITE);
-        //printf("%d WaitForSingleObject\n",i);
+        WaitForSingleObject(myHandle,INFINITE);
+        printf("%d WaitForSingleObject\n",i);
         tmpbuf = buffer_old;
         buffer_old = buffer;
         buffer = tmpbuf;
         printf("-----------\n");
+        //system("pause");
     }
     mWav.playWave(buffer_old,71296*4/divide);
     free(buffer_old);

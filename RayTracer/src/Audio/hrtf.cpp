@@ -134,36 +134,30 @@ hrtf::ir_both hrtf::getHRTF(RayTracer::vector3 direction)
 
 }
 
-void hrtf::convAudio(short* buffer, short* music, int dataSize, 
+void hrtf::convAudio(short* buffer, short* buffer_last, short* music, int dataSize, 
     int kernelSize, float* response_l, float* response_r)
 {
     printf("{{convAudio start\n");
-    memset(buffer,0,dataSize*2);
+    memcpy(buffer,buffer_last,kernelSize*2);
+    memset(buffer_last,0,kernelSize*2);
+
+    /*
     for(int i=0;i<dataSize;++i)
     {
         for(int j=0;j<kernelSize;++j)
         {
-            if((i+j)*2>=dataSize*2)
-            {
-                printf("dataSize=%d (i+j)*2=%d",dataSize,(i+j)*2);
-                return;
-            }
             buffer[(i+j)*2]+=music[(i)*2]*response_l[j];
-            if((i+j)*2+1>=dataSize*2)
-            {
-                printf("dataSize=%d (i+j)*2+1=%d",dataSize,(i+j)*2+1);
-                return;
-            }
             buffer[(i+j)*2+1]+=music[(i)*2+1]*response_r[j];
         }
     }
-    /*int i, j, k;
-    for(i = kernelSize-1; i < dataSize; ++i)
+    memcpy(buffer_last,&buffer[dataSize*2],kernelSize*2);*/
+    int i, j, k;
+    for(i = kernelSize-1; i < dataSize+kernelSize; ++i)
     {
         buffer[i*2] = 0;                             // init to 0 before accumulate
 
         for(j = i, k = 0; k < kernelSize; --j, ++k)
-            buffer[i*2] += music[j*2] * response_l[k];
+            if(j<dataSize)buffer[i*2] += music[j*2] * response_l[k];
     }
 
     // convolution from out[0] to out[kernelSize-2]
@@ -176,12 +170,12 @@ void hrtf::convAudio(short* buffer, short* music, int dataSize,
     }
 
     //////////////////////////////////////////////////////////////////////////
-    for(i = kernelSize-1; i < dataSize; ++i)
+    for(i = kernelSize-1; i < dataSize+kernelSize; ++i)
     {
         buffer[i*2+1] = 0;                             // init to 0 before accumulate
 
         for(j = i, k = 0; k < kernelSize; --j, ++k)
-            buffer[i*2+1] += music[j*2+1] * response_r[k];
+            if(j+1<dataSize)buffer[i*2+1] += music[j*2+1] * response_r[k];
     }
 
     // convolution from out[0] to out[kernelSize-2]
@@ -191,7 +185,8 @@ void hrtf::convAudio(short* buffer, short* music, int dataSize,
 
         for(j = i, k = 0; j >= 0; --j, ++k)
             buffer[i*2+1] += music[j*2+1] * response_r[k];
-    }*/
+    }
+    memcpy(buffer_last,&buffer[dataSize*2],kernelSize*2);
     printf("}}convAudio end %d\n",buffer);
 }
 

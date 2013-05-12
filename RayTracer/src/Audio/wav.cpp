@@ -95,10 +95,8 @@ void wav::closeDevice()
 {
     waveOutClose(hWaveOut);
 }
-void wav::prepWave(short* buffer,int length)
+void wav::prepWave()
 {
-    wh.lpData = (char*)buffer;
-    wh.dwBufferLength = length;
     wh.dwFlags = 0;
     wh.dwLoops = 0;
     waveOutPrepareHeader(hWaveOut,(wavehdr_tag*)&wh,sizeof(wh));
@@ -106,6 +104,7 @@ void wav::prepWave(short* buffer,int length)
 void wav::playWave(short* buffer,int length)
 {
     wh.lpData = (char*)buffer;
+    wh.dwBufferLength = length;
     printf("[[wav start %d\n",buffer);
     waveOutWrite(hWaveOut,(wavehdr_tag*)&wh,sizeof(wh));
     do {}
