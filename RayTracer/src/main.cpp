@@ -59,16 +59,22 @@ float yaw=0.0f,pitch=0.0f,roll=0.0f;
 SerialPort serial;
 struct convData
 {
+    short* buffer;
     short* music;
     int dataSize;
     int kernelSize;
     float* response_l;
     float* response_r;
 };
-short* buffer;
+const int divide = 2;
+short* volatile buffer;
+short* volatile buffer_old;
 DWORD WINAPI convThread(LPVOID data) {
-    buffer = hrtf::convAudio(((convData*)data)->music,((convData*)data)->dataSize,
+    printf("convThread start\n");
+    hrtf::convAudio(((convData*)data)->buffer,((convData*)data)->music,((convData*)data)->dataSize,
         ((convData*)data)->kernelSize,((convData*)data)->response_l,((convData*)data)->response_r);
+    printf("buffer address: %d\n",((convData*)data)->buffer);
+    printf("convThread end\n");
     return 0;
 }
 
@@ -210,33 +216,45 @@ void initCalc()
     float response[1024]={0.0};
     response[0] = 1.0f;
 
-    int divide=2;
+    int divide=4;
     int kernelSize=1024;
     int dataSize = 71296/divide;
-    short* buffer_old = hrtf::convAudio(music,dataSize,kernelSize,response_l,response_r);
+    buffer = new short[dataSize*2];
+    buffer_old = new short[dataSize*2];
+    hrtf::convAudio(buffer_old,music,dataSize,kernelSize,response_l,response_r);
     convData *data = (convData*) malloc(sizeof(convData));
     data->dataSize=dataSize;
     data->kernelSize=kernelSize;
     data->response_l=response_l;
     data->response_r=response_r;
-
+    
     HANDLE myHandle;
+    short* tmpbuf;
+
+    mWav.prepWave(buffer_old,71296*4/divide);
+
     for(int i=1;i<divide;++i)
     {
+        data->buffer=buffer;
         data->music=&music[i*71296/divide];
         myHandle = CreateThread(NULL,0,convThread,(LPVOID)data,0,NULL);
         printf("%d CreateThread\n",i);
         mWav.playWave(buffer_old,71296*4/divide);
-        printf("%d playWave\n",i);
-        free(buffer_old);
-        printf("%d free\n",i);
+
         //WaitForSingleObject(myHandle,INFINITE);
         //printf("%d WaitForSingleObject\n",i);
+        tmpbuf = buffer_old;
         buffer_old = buffer;
+        buffer = tmpbuf;
+        printf("-----------\n");
     }
     mWav.playWave(buffer_old,71296*4/divide);
     free(buffer_old);
+    buffer_old = NULL;
+    free(buffer);
+    buffer = NULL;
     free(music);
+    mWav.unprepWave();
     finish = clock();
     mWav.closeDevice();
     double duration = (double)(finish - start) / CLOCKS_PER_SEC;

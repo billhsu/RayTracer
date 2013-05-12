@@ -134,45 +134,45 @@ hrtf::ir_both hrtf::getHRTF(RayTracer::vector3 direction)
 
 }
 
-short* hrtf::convAudio(short* music, int dataSize, 
+void hrtf::convAudio(short* buffer, short* last_buffer, short* music, int dataSize, 
     int kernelSize, float* response_l, float* response_r)
 {
-    short* buffer2 = new short[dataSize*2];
+    printf("{{convAudio start\n");
     int i, j, k;
     for(i = kernelSize-1; i < dataSize; ++i)
     {
-        buffer2[i*2] = 0;                             // init to 0 before accumulate
+        buffer[i*2] = 0;                             // init to 0 before accumulate
 
         for(j = i, k = 0; k < kernelSize; --j, ++k)
-            buffer2[i*2] += music[j*2] * response_l[k];
+            buffer[i*2] += music[j*2] * response_l[k];
     }
 
     // convolution from out[0] to out[kernelSize-2]
     for(i = 0; i < kernelSize - 1; ++i)
     {
-        buffer2[i*2] = 0;                             // init to 0 before sum
+        buffer[i*2] = 0;                             // init to 0 before sum
 
         for(j = i, k = 0; j >= 0; --j, ++k)
-            buffer2[i*2] += music[j*2] * response_l[k];
+            buffer[i*2] += music[j*2] * response_l[k];
     }
 
     //////////////////////////////////////////////////////////////////////////
     for(i = kernelSize-1; i < dataSize; ++i)
     {
-        buffer2[i*2+1] = 0;                             // init to 0 before accumulate
+        buffer[i*2+1] = 0;                             // init to 0 before accumulate
 
         for(j = i, k = 0; k < kernelSize; --j, ++k)
-            buffer2[i*2+1] += music[j*2+1] * response_r[k];
+            buffer[i*2+1] += music[j*2+1] * response_r[k];
     }
 
     // convolution from out[0] to out[kernelSize-2]
     for(i = 0; i < kernelSize - 1; ++i)
     {
-        buffer2[i*2+1] = 0;                             // init to 0 before sum
+        buffer[i*2+1] = 0;                             // init to 0 before sum
 
         for(j = i, k = 0; j >= 0; --j, ++k)
-            buffer2[i*2+1] += music[j*2+1] * response_r[k];
+            buffer[i*2+1] += music[j*2+1] * response_r[k];
     }
-    return buffer2;
+    printf("}}convAudio end %d\n",buffer);
 }
 
