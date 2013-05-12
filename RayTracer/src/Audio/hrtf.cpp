@@ -134,11 +134,30 @@ hrtf::ir_both hrtf::getHRTF(RayTracer::vector3 direction)
 
 }
 
-void hrtf::convAudio(short* buffer, short* last_buffer, short* music, int dataSize, 
+void hrtf::convAudio(short* buffer, short* music, int dataSize, 
     int kernelSize, float* response_l, float* response_r)
 {
     printf("{{convAudio start\n");
-    int i, j, k;
+    memset(buffer,0,dataSize*2);
+    for(int i=0;i<dataSize;++i)
+    {
+        for(int j=0;j<kernelSize;++j)
+        {
+            if((i+j)*2>=dataSize*2)
+            {
+                printf("dataSize=%d (i+j)*2=%d",dataSize,(i+j)*2);
+                return;
+            }
+            buffer[(i+j)*2]+=music[(i)*2]*response_l[j];
+            if((i+j)*2+1>=dataSize*2)
+            {
+                printf("dataSize=%d (i+j)*2+1=%d",dataSize,(i+j)*2+1);
+                return;
+            }
+            buffer[(i+j)*2+1]+=music[(i)*2+1]*response_r[j];
+        }
+    }
+    /*int i, j, k;
     for(i = kernelSize-1; i < dataSize; ++i)
     {
         buffer[i*2] = 0;                             // init to 0 before accumulate
@@ -172,7 +191,7 @@ void hrtf::convAudio(short* buffer, short* last_buffer, short* music, int dataSi
 
         for(j = i, k = 0; j >= 0; --j, ++k)
             buffer[i*2+1] += music[j*2+1] * response_r[k];
-    }
+    }*/
     printf("}}convAudio end %d\n",buffer);
 }
 

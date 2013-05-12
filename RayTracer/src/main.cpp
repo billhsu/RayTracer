@@ -216,7 +216,7 @@ void initCalc()
     float response[1024]={0.0};
     response[0] = 1.0f;
 
-    int divide=4;
+    int divide=2;
     int kernelSize=1024;
     int dataSize = 71296/divide;
     buffer = new short[dataSize*2];

@@ -105,6 +105,7 @@ void wav::prepWave(short* buffer,int length)
 }
 void wav::playWave(short* buffer,int length)
 {
+    wh.lpData = (char*)buffer;
     printf("[[wav start %d\n",buffer);
     waveOutWrite(hWaveOut,(wavehdr_tag*)&wh,sizeof(wh));
     do {}
