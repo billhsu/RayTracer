@@ -57,7 +57,20 @@ float yaw=0.0f,pitch=0.0f,roll=0.0f;
 
 
 SerialPort serial;
+struct convData
+{
+    short* music;
+    int dataSize;
+    int kernelSize;
+    float* response_l;
+    float* response_r;
+};
 short* buffer;
+DWORD WINAPI convThread(LPVOID data) {
+    buffer = hrtf::convAudio(((convData*)data)->music,((convData*)data)->dataSize,
+        ((convData*)data)->kernelSize,((convData*)data)->response_l,((convData*)data)->response_r);
+    return 0;
+}
 
 void initCalc()
 {
@@ -198,18 +211,22 @@ void initCalc()
     response[0] = 1.0f;
     int i, j, k;
     int kernelSize=1024;
-    int dataSize = 71296/64;
-    short* buffer1 = hrtf::convAudio(&music[i*71296/64],dataSize,kernelSize,response_l,response_r);
-    
-    for(int i=0;i<64;++i)
-    {
-        if(i==0)
-        {
+    int dataSize = 71296/16;
+    short* buffer_old = hrtf::convAudio(music,dataSize,kernelSize,response_l,response_r);
+    convData *data = (convData*) malloc(sizeof(convData));
+    data->dataSize=dataSize;
+    data->kernelSize=kernelSize;
+    data->response_l=response_l;
+    data->response_r=response_r;
 
-            mWav.playWave(buffer1,71296*4/64);
-            free(buffer1);
-        }
-        
+    HANDLE myHandle;
+    for(int i=1;i<16;++i)
+    {
+        data->music=&music[i*71296/16];
+        myHandle = CreateThread(NULL,0,convThread,(LPVOID)data,0,NULL);
+        mWav.playWave(buffer_old,71296*4/16);
+        free(buffer_old);
+        buffer_old = buffer;
     }
     free(music);
     finish = clock();
