@@ -25,7 +25,7 @@ public:
     void load(char* Path);
     ir_both getHRTF(RayTracer::vector3 direction);
     static void convAudio(short* buffer, short* buffer_last, short* music, int dataSize, 
-        int kernelSize, float* response_l, float* response_r);
+        int kernelSize, float* response_l, float* response_r,bool first=false);
 private:
     struct hrtf_data{
         float ir[128];

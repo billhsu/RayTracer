@@ -220,13 +220,13 @@ void initCalc()
     float response[1024]={0.0};
     response[0] = 1.0f;
 
-    int divide=16;
+    int divide=8;
     int kernelSize=1024;
     int dataSize = 71296/divide;
     buffer = new short[(dataSize+kernelSize)*2];
     buffer_old = new short[(dataSize+kernelSize)*2];
     buffer_last = new short [kernelSize*2];
-    hrtf::convAudio(buffer_old,buffer_last,music,dataSize,kernelSize,response_l,response_r);
+    hrtf::convAudio(buffer_old,buffer_last,music,dataSize,kernelSize,response_l,response_r,true);
     convData *data = (convData*) malloc(sizeof(convData));
     data->dataSize=dataSize;
     data->kernelSize=kernelSize;
