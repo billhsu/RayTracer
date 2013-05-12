@@ -192,53 +192,24 @@ void initCalc()
             response_r[respondList[i].time+j]+=(hrtf[j]*respondList[i].strength);
         }
     }
-    short* buffer2 = new short[71296*2];
+
     float response[1024]={0.0};
     response[0] = 1.0f;
     int i, j, k;
     int kernelSize=1024;
-    int dataSize = 71296;
-    for(i = kernelSize-1; i < dataSize; ++i)
+    for(int i=0;i<64;++i)
     {
-        buffer2[i*2] = 0;                             // init to 0 before accumulate
-
-        for(j = i, k = 0; k < kernelSize; --j, ++k)
-            buffer2[i*2] += music[j*2] * response_l[k];
-    }
-
-    // convolution from out[0] to out[kernelSize-2]
-    for(i = 0; i < kernelSize - 1; ++i)
-    {
-        buffer2[i*2] = 0;                             // init to 0 before sum
-
-        for(j = i, k = 0; j >= 0; --j, ++k)
-            buffer2[i*2] += music[j*2] * response_l[k];
-    }
-    
-    //////////////////////////////////////////////////////////////////////////
-    for(i = kernelSize-1; i < dataSize; ++i)
-    {
-        buffer2[i*2+1] = 0;                             // init to 0 before accumulate
-
-        for(j = i, k = 0; k < kernelSize; --j, ++k)
-            buffer2[i*2+1] += music[j*2+1] * response_r[k];
-    }
-
-    // convolution from out[0] to out[kernelSize-2]
-    for(i = 0; i < kernelSize - 1; ++i)
-    {
-        buffer2[i*2+1] = 0;                             // init to 0 before sum
-
-        for(j = i, k = 0; j >= 0; --j, ++k)
-            buffer2[i*2+1] += music[j*2+1] * response_r[k];
-    }
-
 
     
-    finish = clock();
-    mWav.playWave(buffer2,71296*4);
-    free(music);
+    int dataSize = 71296/64;
+    short* buffer2 = hrtf::convAudio(&music[i*71296/64],dataSize,kernelSize,response_l,response_r);
+    
+    mWav.playWave(buffer2,71296*4/64);
+    
     free(buffer2);
+    }
+    free(music);
+    finish = clock();
     mWav.closeDevice();
     double duration = (double)(finish - start) / CLOCKS_PER_SEC;
     printf( "%f seconds\n", duration );
