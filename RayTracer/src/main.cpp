@@ -209,9 +209,10 @@ void initCalc()
 
     float response[1024]={0.0};
     response[0] = 1.0f;
-    int i, j, k;
+
+    int divide=2;
     int kernelSize=1024;
-    int dataSize = 71296/16;
+    int dataSize = 71296/divide;
     short* buffer_old = hrtf::convAudio(music,dataSize,kernelSize,response_l,response_r);
     convData *data = (convData*) malloc(sizeof(convData));
     data->dataSize=dataSize;
@@ -220,14 +221,21 @@ void initCalc()
     data->response_r=response_r;
 
     HANDLE myHandle;
-    for(int i=1;i<16;++i)
+    for(int i=1;i<divide;++i)
     {
-        data->music=&music[i*71296/16];
+        data->music=&music[i*71296/divide];
         myHandle = CreateThread(NULL,0,convThread,(LPVOID)data,0,NULL);
-        mWav.playWave(buffer_old,71296*4/16);
+        printf("%d CreateThread\n",i);
+        mWav.playWave(buffer_old,71296*4/divide);
+        printf("%d playWave\n",i);
         free(buffer_old);
+        printf("%d free\n",i);
+        //WaitForSingleObject(myHandle,INFINITE);
+        //printf("%d WaitForSingleObject\n",i);
         buffer_old = buffer;
     }
+    mWav.playWave(buffer_old,71296*4/divide);
+    free(buffer_old);
     free(music);
     finish = clock();
     mWav.closeDevice();
