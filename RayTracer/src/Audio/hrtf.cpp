@@ -133,15 +133,15 @@ hrtf::ir_both hrtf::getHRTF(RayTracer::vector3 direction)
 
 
 }
-
+//#define MY_CONV
 void hrtf::convAudio(short* buffer, short* buffer_last, short* music, int dataSize, 
     int kernelSize, float* response_l, float* response_r,bool first)
 {
-    printf("{{convAudio start\n");
-    //memcpy(buffer,buffer_last,kernelSize*2);
+    printf("{{convAudio start %d\n",music);
+    memcpy(buffer,buffer_last,kernelSize*2);
     memset(buffer_last,0,kernelSize*2);
 
-    /*
+#ifdef MY_CONV
     for(int i=0;i<dataSize;++i)
     {
         for(int j=0;j<kernelSize;++j)
@@ -150,7 +150,10 @@ void hrtf::convAudio(short* buffer, short* buffer_last, short* music, int dataSi
             buffer[(i+j)*2+1]+=music[(i)*2+1]*response_r[j];
         }
     }
-    memcpy(buffer_last,&buffer[dataSize*2],kernelSize*2);*/
+    memcpy(buffer_last,&buffer[dataSize*2],kernelSize*2);
+
+#else
+
     int i, j, k;
     for(i = kernelSize-1; i < dataSize; ++i)
     {
@@ -191,6 +194,7 @@ void hrtf::convAudio(short* buffer, short* buffer_last, short* music, int dataSi
             buffer[i*2+1] += music[j*2+1] * response_r[k];
     }
     memcpy(buffer_last,&buffer[dataSize*2-kernelSize*2],kernelSize*2);
+#endif
     printf("}}convAudio end %d\n",buffer);
 }
 
