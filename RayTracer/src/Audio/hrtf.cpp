@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "hrtf.h"
 #include <iostream>
+#include <fstream>
 
 hrtf::hrtf(char* Path)
 {
@@ -137,19 +138,37 @@ hrtf::ir_both hrtf::getHRTF(RayTracer::vector3 direction)
 void hrtf::convAudio(short* buffer, short* buffer_last, short* music, int dataSize, 
     int kernelSize, float* response_l, float* response_r,bool first)
 {
+    std::ofstream out("afterConv.txt");
     printf("{{convAudio start %d\n",music);
-    memcpy(buffer,buffer_last,kernelSize*2);
-    memset(buffer_last,0,kernelSize*2);
-
-#ifdef MY_CONV
-    for(int i=0;i<dataSize;++i)
+    
+    memset(buffer,0,(dataSize+kernelSize)*2);
+    if(!first)memcpy(buffer,buffer_last,kernelSize);
+#ifndef MY_CONV
+    /*for(int i=0;i<dataSize;++i)
     {
         for(int j=0;j<kernelSize;++j)
         {
             buffer[(i+j)*2]+=music[(i)*2]*response_l[j];
             buffer[(i+j)*2+1]+=music[(i)*2+1]*response_r[j];
         }
+    }*/
+    for (int n = 0; n < dataSize+kernelSize - 1; n++)
+    {
+        size_t kmin, kmax, k;
+
+        buffer[2*n] = 0;
+        buffer[2*n+1] = 0;
+        kmin = (n >= kernelSize - 1) ? n - (kernelSize - 1) : 0;
+        kmax = (n < dataSize - 1) ? n : dataSize - 1;
+
+        for (k = kmin; k <= kmax; k++)
+        {
+            buffer[2*n] += music[2*k] * response_l[n - k];
+            buffer[2*n+1] += music[2*k] * response_r[n - k];
+        }
     }
+
+    memset(buffer_last,0,kernelSize*2);
     memcpy(buffer_last,&buffer[dataSize*2],kernelSize*2);
 
 #else
@@ -196,5 +215,27 @@ void hrtf::convAudio(short* buffer, short* buffer_last, short* music, int dataSi
     memcpy(buffer_last,&buffer[dataSize*2-kernelSize*2],kernelSize*2);
 #endif
     printf("}}convAudio end %d\n",buffer);
+
+    
+    out<<"a=[";
+    for(int i=0;i<dataSize;++i)
+    {
+        if(i!=dataSize-1)out<<buffer[2*i]<<" "<<buffer[2*i+1]<<";";
+        else out<<buffer[2*i]<<" "<<buffer[2*i+1]<<"]\n";
+    }
+    out<<"b=[";
+    for(int i=0;i<kernelSize;++i)
+    {
+        if(i!=kernelSize-1)out<<response_l[i]<<" "<<response_r[i]<<";";
+        else out<<response_l[i]<<" "<<response_r[i]<<"]\n";
+    }
+    out<<"c=[";
+    for(int i=0;i<kernelSize;++i)
+    {
+        if(i!=kernelSize-1)out<<buffer_last[2*i]<<" "<<buffer_last[2*i+1]<<";";
+        else out<<buffer_last[2*i]<<" "<<buffer_last[2*i+1]<<"]\n";
+    }
+    out.close();
+    //system("pause");
 }
 
