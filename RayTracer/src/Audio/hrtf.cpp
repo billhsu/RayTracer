@@ -141,8 +141,8 @@ void hrtf::convAudio(short* buffer, short* buffer_last, short* music, int dataSi
     std::ofstream out("afterConv.txt");
     printf("{{convAudio start %d\n",music);
     
-    memset(buffer,0,(dataSize+kernelSize)*2);
-    if(!first)memcpy(buffer,buffer_last,kernelSize);
+    //if(!first)memcpy(buffer,buffer_last,kernelSize);
+
 #ifndef MY_CONV
     /*for(int i=0;i<dataSize;++i)
     {
@@ -156,19 +156,18 @@ void hrtf::convAudio(short* buffer, short* buffer_last, short* music, int dataSi
     {
         size_t kmin, kmax, k;
 
-        buffer[2*n] = 0;
-        buffer[2*n+1] = 0;
+        if(n<kernelSize)buffer[2*n] = buffer_last[2*n];
+        if(n<kernelSize)buffer[2*n+1] = buffer_last[2*n+1];
         kmin = (n >= kernelSize - 1) ? n - (kernelSize - 1) : 0;
         kmax = (n < dataSize - 1) ? n : dataSize - 1;
 
         for (k = kmin; k <= kmax; k++)
         {
             buffer[2*n] += music[2*k] * response_l[n - k];
-            buffer[2*n+1] += music[2*k] * response_r[n - k];
+            buffer[2*n+1] += music[2*k+1] * response_r[n - k];
         }
     }
 
-    memset(buffer_last,0,kernelSize*2);
     memcpy(buffer_last,&buffer[dataSize*2],kernelSize*2);
 
 #else
@@ -212,15 +211,15 @@ void hrtf::convAudio(short* buffer, short* buffer_last, short* music, int dataSi
         else for(j = i, k = 0; k < kernelSize; --j, ++k)
             buffer[i*2+1] += music[j*2+1] * response_r[k];
     }
-    memcpy(buffer_last,&buffer[dataSize*2-kernelSize*2],kernelSize*2);
+    //memcpy(buffer_last,&buffer[dataSize*2-kernelSize*2],kernelSize*2);
 #endif
     printf("}}convAudio end %d\n",buffer);
 
     
     out<<"a=[";
-    for(int i=0;i<dataSize;++i)
+    for(int i=0;i<dataSize+kernelSize;++i)
     {
-        if(i!=dataSize-1)out<<buffer[2*i]<<" "<<buffer[2*i+1]<<";";
+        if(i!=dataSize+kernelSize-1)out<<buffer[2*i]<<" "<<buffer[2*i+1]<<";";
         else out<<buffer[2*i]<<" "<<buffer[2*i+1]<<"]\n";
     }
     out<<"b=[";
@@ -235,7 +234,13 @@ void hrtf::convAudio(short* buffer, short* buffer_last, short* music, int dataSi
         if(i!=kernelSize-1)out<<buffer_last[2*i]<<" "<<buffer_last[2*i+1]<<";";
         else out<<buffer_last[2*i]<<" "<<buffer_last[2*i+1]<<"]\n";
     }
+    out<<"d=[";
+    for(int i=0;i<dataSize+kernelSize;++i)
+    {
+        if(i!=dataSize+kernelSize-1)out<<music[2*i]<<" "<<music[2*i+1]<<";";
+        else out<<music[2*i]<<" "<<music[2*i+1]<<"]\n";
+    }
     out.close();
-    //system("pause");
+    system("pause");
 }
 

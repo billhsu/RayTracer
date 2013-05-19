@@ -219,10 +219,14 @@ void initCalc()
 
     float response[1024]={0.0};
     response[0] = 1.0f;
-
-    int divide=8;
+    
+    int divide=16;
     int kernelSize=1024;
     int dataSize = 71296/divide;
+    memset(response_l,0,kernelSize);
+    memset(response_r,0,kernelSize);
+    response_l[0]=1;
+    response_r[0]=1;
     buffer = new short[(dataSize+kernelSize)*2];
     buffer_old = new short[(dataSize+kernelSize)*2];
     buffer_last = new short [kernelSize*2];
@@ -242,10 +246,10 @@ void initCalc()
     {
         data->buffer=buffer;
         data->buffer_last = buffer_last;
-        data->music=&music[i*71296*2/divide];
+        data->music=&music[i*dataSize*2];
         myHandle = CreateThread(NULL,0,convThread,(LPVOID)data,0,NULL);
         printf("%d CreateThread\n",i);
-        mWav.playWave(buffer_old,71296*4/divide);
+        mWav.playWave(buffer_old,dataSize*4);
 
         WaitForSingleObject(myHandle,INFINITE);
         printf("%d WaitForSingleObject\n",i);
@@ -255,7 +259,7 @@ void initCalc()
         printf("-----------\n");
         //system("pause");
     }
-    mWav.playWave(buffer_old,71296*4/divide);
+    mWav.playWave(buffer_old,dataSize*4);
     free(buffer_old);
     buffer_old = NULL;
     free(buffer);
