@@ -28,8 +28,8 @@ RayTracer::Scene scene;
 std::vector<RayTracer::Ray> rayListTmp;
 
 wav mWav;
-float response_r[1024]={0.0f};
-float response_l[1024]={0.0f};
+float *response_r;
+float *response_l;
 
 float const time441k = 22.675736961451247165532879818594f;
 struct respond
@@ -88,8 +88,11 @@ void initCalc()
     music = mWav.readWavFileData("Res/tada.wav",filelen);
     rayListTmp.clear();
     respondList.clear();
-    memset(response_l,0,1024);
-    memset(response_r,0,1024);
+    response_l=new float[1024];
+    response_r=new float[1024];
+    memset(response_l,0,1024*sizeof(float));
+    memset(response_r,0,1024*sizeof(float));
+
     mWav.openDevice();
     RayTracer::Scene scene;
     for(int theta=0;theta<30;++theta)
@@ -208,25 +211,25 @@ void initCalc()
         hrtf = ir.ir_l;
         for(int j=0;j<128;++j)
         {
-            response_l[respondList[i].time+j]+=(hrtf[j]*respondList[i].strength);
+            if(respondList[i].time+j<1024)response_l[respondList[i].time+j]+=(hrtf[j]*respondList[i].strength);
         }
         hrtf = ir.ir_r;
         for(int j=0;j<128;++j)
         {
-            response_r[respondList[i].time+j]+=(hrtf[j]*respondList[i].strength);
+            if(respondList[i].time+j<1024)response_r[respondList[i].time+j]+=(hrtf[j]*respondList[i].strength);
         }
+        printf("%d/%d\n",i,respondList.size());
     }
 
-    float response[1024]={0.0};
-    response[0] = 1.0f;
     
-    int divide=16;
+    int divide=1;
     int kernelSize=1024;
     int dataSize = 71296/divide;
-    memset(response_l,0,kernelSize);
-    memset(response_r,0,kernelSize);
-    response_l[0]=1;
-    response_r[0]=1;
+    //memset(response_l,0,kernelSize*sizeof(float));
+    //memset(response_r,0,kernelSize*sizeof(float));
+    //response_l[0]=1;
+    //response_r[0]=1;
+
     buffer = new short[(dataSize+kernelSize)*2];
     buffer_old = new short[(dataSize+kernelSize)*2];
     buffer_last = new short [kernelSize*2];

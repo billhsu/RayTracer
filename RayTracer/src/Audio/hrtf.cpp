@@ -138,9 +138,10 @@ hrtf::ir_both hrtf::getHRTF(RayTracer::vector3 direction)
 void hrtf::convAudio(short* buffer, short* buffer_last, short* music, int dataSize, 
     int kernelSize, float* response_l, float* response_r,bool first)
 {
-    std::ofstream out("afterConv.txt");
+    std::ofstream out;
+    out.open("afterConv.txt",std::ios::out | std::ios::app);
     printf("{{convAudio start %d\n",music);
-    
+    memset(buffer,0,2*(dataSize+kernelSize)*sizeof(short));
     //if(!first)memcpy(buffer,buffer_last,kernelSize);
 
 #ifndef MY_CONV
@@ -155,9 +156,10 @@ void hrtf::convAudio(short* buffer, short* buffer_last, short* music, int dataSi
     for (int n = 0; n < dataSize+kernelSize - 1; n++)
     {
         size_t kmin, kmax, k;
-
-        if(n<kernelSize)buffer[2*n] = buffer_last[2*n];
-        if(n<kernelSize)buffer[2*n+1] = buffer_last[2*n+1];
+        buffer[2*n]=0;
+        buffer[2*n+1]=0;
+        if(n<kernelSize/2 && !first)buffer[2*n] = buffer_last[2*n];
+        if(n<kernelSize/2 && !first)buffer[2*n+1] = buffer_last[2*n+1];
         kmin = (n >= kernelSize - 1) ? n - (kernelSize - 1) : 0;
         kmax = (n < dataSize - 1) ? n : dataSize - 1;
 
@@ -168,7 +170,7 @@ void hrtf::convAudio(short* buffer, short* buffer_last, short* music, int dataSi
         }
     }
 
-    memcpy(buffer_last,&buffer[dataSize*2],kernelSize*2);
+    memcpy(buffer_last,&buffer[dataSize*2],kernelSize*2*sizeof(short));
 
 #else
 
@@ -214,33 +216,5 @@ void hrtf::convAudio(short* buffer, short* buffer_last, short* music, int dataSi
     //memcpy(buffer_last,&buffer[dataSize*2-kernelSize*2],kernelSize*2);
 #endif
     printf("}}convAudio end %d\n",buffer);
-
-    
-    out<<"a=[";
-    for(int i=0;i<dataSize+kernelSize;++i)
-    {
-        if(i!=dataSize+kernelSize-1)out<<buffer[2*i]<<" "<<buffer[2*i+1]<<";";
-        else out<<buffer[2*i]<<" "<<buffer[2*i+1]<<"]\n";
-    }
-    out<<"b=[";
-    for(int i=0;i<kernelSize;++i)
-    {
-        if(i!=kernelSize-1)out<<response_l[i]<<" "<<response_r[i]<<";";
-        else out<<response_l[i]<<" "<<response_r[i]<<"]\n";
-    }
-    out<<"c=[";
-    for(int i=0;i<kernelSize;++i)
-    {
-        if(i!=kernelSize-1)out<<buffer_last[2*i]<<" "<<buffer_last[2*i+1]<<";";
-        else out<<buffer_last[2*i]<<" "<<buffer_last[2*i+1]<<"]\n";
-    }
-    out<<"d=[";
-    for(int i=0;i<dataSize+kernelSize;++i)
-    {
-        if(i!=dataSize+kernelSize-1)out<<music[2*i]<<" "<<music[2*i+1]<<";";
-        else out<<music[2*i]<<" "<<music[2*i+1]<<"]\n";
-    }
-    out.close();
-    system("pause");
 }
 
