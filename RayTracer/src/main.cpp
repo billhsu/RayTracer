@@ -20,7 +20,7 @@
 #include "Audio/wav.h"
 #include "Math/Matrices.h"
 #include "SerialPort/SerialPort.h"
-
+void initCalc();
 hrtf mhrtf("data\\hrtf");
 float rot_x=0.0f,rot_y=0.0f;
 DWORD startTime;
@@ -72,15 +72,25 @@ short* volatile buffer;
 short* volatile buffer_old;
 short* volatile buffer_last;
 DWORD WINAPI convThread(LPVOID data) {
-    printf("convThread start\n");
     hrtf::convAudio(((convData*)data)->buffer,((convData*)data)->buffer_last,
         ((convData*)data)->music,((convData*)data)->dataSize,
         ((convData*)data)->kernelSize,((convData*)data)->response_l,
         ((convData*)data)->response_r);
-    printf("buffer address: %d\n",((convData*)data)->buffer);
-    printf("convThread end\n");
     return 0;
 }
+DWORD WINAPI playwavThread(LPVOID dataSize) {
+    mWav.playWave(buffer_old,*(int*)dataSize*4);
+    return 0;
+}
+DWORD WINAPI waveThread(LPVOID data) {
+    while( true )
+    {
+        initCalc();
+        //Sleep(20-(end-start)*CLOCKS_PER_SEC/1000.0);
+    }
+    return 0;
+}
+
 
 void initCalc()
 {
@@ -234,35 +244,40 @@ void initCalc()
     buffer_old = new short[(dataSize+kernelSize)*2];
     buffer_last = new short [kernelSize*2];
     hrtf::convAudio(buffer_old,buffer_last,music,dataSize,kernelSize,response_l,response_r,true);
+
     convData *data = (convData*) malloc(sizeof(convData));
     data->dataSize=dataSize;
     data->kernelSize=kernelSize;
     data->response_l=response_l;
     data->response_r=response_r;
     
-    HANDLE myHandle;
+    HANDLE convHandle,playwavHandle;
     short* tmpbuf;
 
     mWav.prepWave();
 
+    playwavHandle = CreateThread(NULL,0,playwavThread,(LPVOID)&dataSize,0,NULL);
+    
     for(int i=1;i<divide;++i)
     {
         data->buffer=buffer;
         data->buffer_last = buffer_last;
         data->music=&music[i*dataSize*2];
-        myHandle = CreateThread(NULL,0,convThread,(LPVOID)data,0,NULL);
-        printf("%d CreateThread\n",i);
-        mWav.playWave(buffer_old,dataSize*4);
+        convHandle = CreateThread(NULL,0,convThread,(LPVOID)data,0,NULL);
+        //printf("%d CreateThread\n",i);
+        
+        
 
-        WaitForSingleObject(myHandle,INFINITE);
-        printf("%d WaitForSingleObject\n",i);
+        WaitForSingleObject(playwavHandle,INFINITE);
+
         tmpbuf = buffer_old;
         buffer_old = buffer;
         buffer = tmpbuf;
-        printf("-----------\n");
+        playwavHandle = CreateThread(NULL,0,playwavThread,(LPVOID)&dataSize,0,NULL);
+        //printf("-----------\n");
         //system("pause");
     }
-    mWav.playWave(buffer_old,dataSize*4);
+    WaitForSingleObject(playwavHandle,INFINITE);
     free(buffer_old);
     buffer_old = NULL;
     free(buffer);
@@ -295,6 +310,7 @@ void keyinput(unsigned char key, int x, int y)
     m2.rotateY(rot_z+90);
     Vector3 vz=Vector3(-0.1,0,0);
     vz=m2*vz;
+    HANDLE waveHandle;
     switch(key)
     {
     case 'w':
@@ -320,7 +336,7 @@ void keyinput(unsigned char key, int x, int y)
         rot_z-=1.5f;
         break;
     case 'p':
-        initCalc();
+        //waveHandle = CreateThread(NULL,0,waveThread,(LPVOID)NULL,0,NULL);
         break;
     case 27:
         exit(0);
@@ -366,7 +382,7 @@ void init(void)
     
     scene.loadObj("Res/Scene.obj");
 
-    
+    HANDLE waveHandle = CreateThread(NULL,0,waveThread,(LPVOID)NULL,0,NULL);
     
 
 }

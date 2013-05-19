@@ -162,4 +162,5 @@ pip-log.txt
 .DS_Store
 
 #Keil
-AHRS_STM32/Output/*.*
+*/AHRS_STM32/Output/*.*
+*/RayTracer/afterConv.txt

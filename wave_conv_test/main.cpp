@@ -137,6 +137,12 @@ void parseWav(char *data)
                 do {}
                 while (!(wh.dwFlags & WHDR_DONE));
 
+                
+                waveOutWrite(hWaveOut,(wavehdr_tag*)&wh,sizeof(wh));
+
+                do {}
+                while (!(wh.dwFlags & WHDR_DONE));
+
                 waveOutUnprepareHeader(hWaveOut,(wavehdr_tag*)&wh,sizeof(wh));
                 waveOutClose(hWaveOut);
 
