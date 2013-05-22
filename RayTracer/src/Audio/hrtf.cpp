@@ -138,8 +138,8 @@ hrtf::ir_both hrtf::getHRTF(RayTracer::vector3 direction)
 void hrtf::convAudio(short* buffer, short* buffer_last, short* music, int dataSize, 
     int kernelSize, float* response_l, float* response_r,bool first)
 {
-    std::ofstream out;
-    out.open("afterConv.txt",std::ios::out | std::ios::app);
+    //std::ofstream out;
+    //out.open("afterConv.txt",std::ios::out | std::ios::app);
     printf("convAudio start %d\n",music);
     memset(buffer,0,2*(dataSize+kernelSize)*sizeof(short));
     //if(!first)memcpy(buffer,buffer_last,kernelSize);
@@ -216,9 +216,9 @@ void hrtf::convAudio(short* buffer, short* buffer_last, short* music, int dataSi
     //memcpy(buffer_last,&buffer[dataSize*2-kernelSize*2],kernelSize*2);
 #endif
     printf("convAudio end %d\n",buffer);
-    for(int i=0;i<dataSize;++i)
+    /*for(int i=0;i<dataSize;++i)
     {
         out<<buffer[2*i]<<" "<<buffer[2*i+1]<<";";
-    }
+    }*/
 }
 

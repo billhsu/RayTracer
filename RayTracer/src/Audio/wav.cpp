@@ -98,7 +98,7 @@ void wav::closeDevice()
 void wav::prepWave()
 {
     wh.dwFlags = 0;
-    wh.dwLoops = 0;
+    wh.dwLoops = 1;
     waveOutPrepareHeader(hWaveOut,(wavehdr_tag*)&wh,sizeof(wh));
 }
 void wav::playWave(short* buffer,int length)

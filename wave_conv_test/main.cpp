@@ -128,20 +128,20 @@ void parseWav(char *data)
                 wh.lpData = (char*)buffer2;
                 wh.dwBufferLength = mDataChunk.chunkDataSize;
                 wh.dwFlags = 0;
-                wh.dwLoops = 0;
+                wh.dwLoops = 1;
                 printf("start\n");
                 waveOutOpen(&hWaveOut,WAVE_MAPPER,&wf,0,0,CALLBACK_NULL);
                 waveOutPrepareHeader(hWaveOut,(wavehdr_tag*)&wh,sizeof(wh));
                 waveOutWrite(hWaveOut,(wavehdr_tag*)&wh,sizeof(wh));
 
-                do {}
-                while (!(wh.dwFlags & WHDR_DONE));
+                //do {}
+                //while (!(wh.dwFlags & WHDR_DONE));
 
-                
+                waveOutPrepareHeader(hWaveOut,(wavehdr_tag*)&wh,sizeof(wh));
                 waveOutWrite(hWaveOut,(wavehdr_tag*)&wh,sizeof(wh));
 
-                do {}
-                while (!(wh.dwFlags & WHDR_DONE));
+                //do {}
+                //while (!(wh.dwFlags & WHDR_DONE));
 
                 waveOutUnprepareHeader(hWaveOut,(wavehdr_tag*)&wh,sizeof(wh));
                 waveOutClose(hWaveOut);

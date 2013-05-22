@@ -232,7 +232,7 @@ void initCalc()
     }
 
     
-    int divide=1;
+    int divide=16;
     int kernelSize=1024;
     int dataSize = 71296/divide;
     //memset(response_l,0,kernelSize*sizeof(float));
@@ -267,7 +267,7 @@ void initCalc()
         //printf("%d CreateThread\n",i);
         
         
-
+        
         WaitForSingleObject(playwavHandle,INFINITE);
 
         tmpbuf = buffer_old;
@@ -493,11 +493,10 @@ void recv_callback(int length, BYTE* recv)
         {
             if (b == start_mark[start_match_pos])
             {
-
                 start_match_pos++;
                 if (start_match_pos == 4)
                 {
-                    start_flag = true; 
+                    start_flag = true;
                     recv_cnt = 0;
                     start_match_pos = 0;
                 }
@@ -509,32 +508,62 @@ void recv_callback(int length, BYTE* recv)
 
             recv_data[recv_cnt] = b;
             ++recv_cnt;
-            if (recv_cnt == 16) 
+            if (recv_cnt == 26)
             {
-                for (int ia = 0; ia < 6; ia+=2)
+                for (int i = 0; i < 26; i += 2)
                 {
-                    imu_result[ia / 2] = (recv_data[ia] << 8 | recv_data[ia + 1]);
-                    if (imu_result[ia / 2] >= 32768)
+                    imu_result[i / 2] = (recv_data[i] << 8 | recv_data[i + 1]);
+                    if (imu_result[i / 2] >= 32768)
                     {
-                        imu_result[ia / 2] -= 32768;
-                        imu_result[ia / 2] = -imu_result[ia / 2];
+                        imu_result[i / 2] -= 32768;
+                        imu_result[i / 2] = -imu_result[i / 2];
                     }
                 }
                 recv_cnt = 0;
-                yaw = imu_result[0] / 10.0;
-                pitch = imu_result[1] / 10.0;
-                roll = imu_result[2] / 10.0;
-                start_flag = false;
-                rot_y=yaw;
 
+                /*ax = imu_result[0] / 10.0f;
+                ay = imu_result[1] / 10.0f;
+                az = imu_result[2] / 10.0f;
+
+                gx = imu_result[3] / 10.0f;
+                gy = imu_result[4] / 10.0f;
+                gz = imu_result[5] / 10.0f;
+
+                mx = imu_result[6] / 10.0f;
+                my = imu_result[7] / 10.0f;
+                mz = imu_result[8] / 10.0f;
+                */
+                yaw = imu_result[9] / 10.0f;
+                pitch = imu_result[10] / 10.0f;
+                roll = imu_result[11] / 10.0f;
+                /*IMU.IMU_update(gx, gy, gz, ax, ay, az, mx, my, mz);
+                if (cB_PC.Checked)
+                {
+                    yaw = IMU.yaw;
+                    pitch = IMU.pitch;
+                    roll = IMU.roll;
+                }*/
+
+
+                /*ry = -yaw;
+                rz = pitch;
+                rx = roll;
+                */
+                rot_z=-yaw;
+                start_flag = false;
+                recv_cnt = 0;
+                start_match_pos = 0;
             }
         }
     }
 
-
 }
 int main(int argc, char** argv)
 {
+    std::cout<<"Select Serial Port(e.g COM1):";
+    std::string com_port;
+    std::cin>>com_port;
+
     glutInit(&argc, argv);
     glutInitDisplayMode (GLUT_SINGLE | GLUT_RGB);
     glutInitWindowSize (600, 400);
@@ -546,7 +575,8 @@ int main(int argc, char** argv)
     glutReshapeFunc(reshape);
     glutPassiveMotionFunc(mouse);
     glutKeyboardFunc(keyinput);
-    std::cout<<"Serial Port Status"<<serial.open("COM22");
+    
+    std::cout<<"Serial Port Status"<<serial.open(com_port);
     std::cout<<serial.set_option(115200,0,8,0,0)<<"\n";
     serial.recv_callback(recv_callback);
     glutMainLoop();
