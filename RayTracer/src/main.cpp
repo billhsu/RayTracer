@@ -20,6 +20,10 @@
 #include "Audio/wav.h"
 #include "Math/Matrices.h"
 #include "SerialPort/SerialPort.h"
+#include "Audio/WaveOut.h"
+
+WaveOut waveout;
+
 void initCalc();
 hrtf mhrtf("data\\hrtf");
 float rot_x=0.0f,rot_y=0.0f;
@@ -94,6 +98,7 @@ DWORD WINAPI waveThread(LPVOID data) {
 
 void initCalc()
 {
+    waveout.SetFormatByFile("Res/tada.wav");
     long filelen;
     music = mWav.readWavFileData("Res/tada.wav",filelen);
     rayListTmp.clear();

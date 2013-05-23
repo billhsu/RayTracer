@@ -51,6 +51,9 @@
     <ClCompile Include="src\Math\Matrices.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
+    <ClCompile Include="src\Audio\WaveOut.cpp">
+      <Filter>Source Files\Audio</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scene\Primitive.h">
@@ -79,6 +82,9 @@
     </ClInclude>
     <ClInclude Include="src\Math\Vectors.h">
       <Filter>Source Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Audio\WaveOut.h">
+      <Filter>Source Files\Audio</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
