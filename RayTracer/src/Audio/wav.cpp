@@ -1,6 +1,8 @@
 #include "wav.h"
+#include "WaveOut.h"
 #include <stdio.h>
 #pragma comment(lib, "winmm.lib")
+WaveOut waveout;
 
 wav::wav(void)
 {
@@ -89,27 +91,31 @@ short* wav::parseWav(char *data)
 }
 void wav::openDevice()
 {
-    waveOutOpen(&hWaveOut,WAVE_MAPPER,&wf,0,0,CALLBACK_NULL);
+    waveout.SetFormatByFile("Res/tada.wav");
+    waveout.StartPlay();
+    //waveOutOpen(&hWaveOut,WAVE_MAPPER,&wf,0,0,CALLBACK_NULL);
 }
 void wav::closeDevice()
 {
-    waveOutClose(hWaveOut);
+    //waveOutClose(hWaveOut);
+    waveout.StopPlay();
 }
 void wav::prepWave()
 {
     wh.dwFlags = 0;
     wh.dwLoops = 1;
-    waveOutPrepareHeader(hWaveOut,(wavehdr_tag*)&wh,sizeof(wh));
+    //waveOutPrepareHeader(hWaveOut,(wavehdr_tag*)&wh,sizeof(wh));
 }
 void wav::playWave(short* buffer,int length)
 {
-    wh.lpData = (char*)buffer;
+    /*wh.lpData = (char*)buffer;
     wh.dwBufferLength = length;
     printf("[[wav start %d\n",buffer);
     waveOutWrite(hWaveOut,(wavehdr_tag*)&wh,sizeof(wh));
     do {}
     while (!(wh.dwFlags & WHDR_DONE));
-    printf("]]wav end\n");
+    printf("]]wav end\n");*/
+    waveout.Play((char*)buffer,length);
 }
 void wav::unprepWave()
 {

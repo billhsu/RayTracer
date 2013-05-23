@@ -20,9 +20,8 @@
 #include "Audio/wav.h"
 #include "Math/Matrices.h"
 #include "SerialPort/SerialPort.h"
-#include "Audio/WaveOut.h"
 
-WaveOut waveout;
+
 
 void initCalc();
 hrtf mhrtf("data\\hrtf");
@@ -98,7 +97,7 @@ DWORD WINAPI waveThread(LPVOID data) {
 
 void initCalc()
 {
-    waveout.SetFormatByFile("Res/tada.wav");
+    
     long filelen;
     music = mWav.readWavFileData("Res/tada.wav",filelen);
     rayListTmp.clear();
@@ -237,7 +236,7 @@ void initCalc()
     }
 
     
-    int divide=16;
+    int divide=1;
     int kernelSize=1024;
     int dataSize = 71296/divide;
     //memset(response_l,0,kernelSize*sizeof(float));
