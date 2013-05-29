@@ -2,6 +2,9 @@
 #define WAVFILE_H
 #include <windows.h>
 #include <mmsystem.h>
+#include <boost/thread/locks.hpp>
+#include <boost/thread/mutex.hpp>
+
 class wav{
     public:
 
@@ -12,6 +15,7 @@ class wav{
         void playWave(short* buffer,int length);
         void unprepWave();
         void closeDevice();
+        void setMutex(boost::mutex* _mutex);
     private:
         struct wavFileHeader
         {
@@ -44,5 +48,10 @@ class wav{
         WAVEFORMATEX wf;
         volatile WAVEHDR wh;
         HWAVEOUT hWaveOut;
+        boost::mutex* mutex;
+    protected:
+        static DWORD WINAPI AudioOutThreadProc(LPVOID lpParameter);
+        HANDLE m_hAudioOut;
+        DWORD m_dwAudioOutId;
 };
 #endif

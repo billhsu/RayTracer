@@ -77,7 +77,6 @@
   <ItemGroup>
     <ClCompile Include="src\Audio\hrtf.cpp" />
     <ClCompile Include="src\Audio\wav.cpp" />
-    <ClCompile Include="src\Audio\WaveOut.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Math\Matrices.cpp" />
     <ClCompile Include="src\Scene\Primitive.cpp" />
@@ -88,7 +87,6 @@
   <ItemGroup>
     <ClInclude Include="src\Audio\hrtf.h" />
     <ClInclude Include="src\Audio\wav.h" />
-    <ClInclude Include="src\Audio\WaveOut.h" />
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\Math\Matrices.h" />
     <ClInclude Include="src\Math\Vectors.h" />

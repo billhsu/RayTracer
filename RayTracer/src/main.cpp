@@ -20,7 +20,10 @@
 #include "Audio/wav.h"
 #include "Math/Matrices.h"
 #include "SerialPort/SerialPort.h"
+#include <boost/thread/locks.hpp>
+#include <boost/thread/mutex.hpp>
 
+boost::mutex mutex;
 
 
 void initCalc();
@@ -75,6 +78,7 @@ short* volatile buffer;
 short* volatile buffer_old;
 short* volatile buffer_last;
 DWORD WINAPI convThread(LPVOID data) {
+    boost::lock_guard<boost::mutex> m_csLock(mutex);
     hrtf::convAudio(((convData*)data)->buffer,((convData*)data)->buffer_last,
         ((convData*)data)->music,((convData*)data)->dataSize,
         ((convData*)data)->kernelSize,((convData*)data)->response_l,
@@ -99,6 +103,7 @@ void initCalc()
 {
     
     long filelen;
+    mWav.setMutex(&mutex);
     music = mWav.readWavFileData("Res/tada.wav",filelen);
     rayListTmp.clear();
     respondList.clear();
@@ -236,7 +241,7 @@ void initCalc()
     }
 
     
-    int divide=1;
+    int divide=16;
     int kernelSize=1024;
     int dataSize = 71296/divide;
     //memset(response_l,0,kernelSize*sizeof(float));
@@ -258,7 +263,6 @@ void initCalc()
     HANDLE convHandle,playwavHandle;
     short* tmpbuf;
 
-    mWav.prepWave();
 
     playwavHandle = CreateThread(NULL,0,playwavThread,(LPVOID)&dataSize,0,NULL);
     
@@ -274,9 +278,14 @@ void initCalc()
         
         WaitForSingleObject(playwavHandle,INFINITE);
 
-        tmpbuf = buffer_old;
-        buffer_old = buffer;
-        buffer = tmpbuf;
+        {
+            printf("Swap buffer\n");
+            boost::lock_guard<boost::mutex> m_csLock(mutex);
+            tmpbuf = buffer_old;
+            buffer_old = buffer;
+            buffer = tmpbuf;
+        }
+        
         playwavHandle = CreateThread(NULL,0,playwavThread,(LPVOID)&dataSize,0,NULL);
         //printf("-----------\n");
         //system("pause");

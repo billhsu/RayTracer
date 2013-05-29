@@ -343,5 +343,6 @@ BOOL WaveOut::SetFormatByFile(std::string file)
     this->SetSample (head.cSample);
     this->SetBit (head.cBit);
     printf("%d\n%d\n%d\n",head.cChannel,head.cSample,head.cBit);
+    //system("pause");
     return TRUE;
 }
