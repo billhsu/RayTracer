@@ -71,7 +71,7 @@ namespace RayTracer{
 
     void Primitive::render()
     {
-        glColor4f(1,1,1,0.4);
+        glColor4f(1,1,1,0.3);
         glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
         glBegin(GL_TRIANGLES);
         glVertex3fv(p1.cell);
@@ -89,8 +89,8 @@ namespace RayTracer{
         glVertex3fv(end.cell);*/
         glVertex3fv(p1.cell);
         glVertex3fv(p2.cell);
-        glVertex3fv(p3.cell);
         glVertex3fv(p2.cell);
+        glVertex3fv(p3.cell);
         glEnd();
     }
 

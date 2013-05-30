@@ -359,7 +359,7 @@ void init(void)
 {
     glClearColor (0.0, 0.0, 0.0, 0.0);
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
+    //glEnable(GL_CULL_FACE);
 
     glShadeModel (GL_SMOOTH);
 
@@ -391,11 +391,12 @@ void init(void)
     RayTracer::Primitive p= RayTracer::Primitive(RayTracer::vector3(1,-1.5,-1.5),
         RayTracer::vector3(1,-1.5,1.5),
         RayTracer::vector3(0,1,0));
-    //scene.primList.push_back(p);
+
+    scene.primList.clear();
     
     scene.loadObj("Res/Scene.obj");
 
-    HANDLE waveHandle = CreateThread(NULL,0,waveThread,(LPVOID)NULL,0,NULL);
+
     
 
 }
@@ -422,7 +423,7 @@ void display(void)
     glVertex3f(0,0,0);
     glVertex3f(-1,0,0);
     glEnd();
-    glColor3f(0.5, 0.5, 0.5);
+    glColor3f(0.7, 0.5, 0.5);
     glutWireSphere (0.5f, 10.0f, 10.0f);
     glPopMatrix();
 
@@ -468,7 +469,7 @@ void display(void)
         glVertex3f(end.x, end.y, end.z);
         glEnd();
         rayList[i].SetOrigin(rayList[i].GetOrigin()+rayList[i].GetDirection()*0.000340f);
-        rayList[i].strength -= 0.000005f;
+        rayList[i].strength -= 0.00005f;
         if(rayList[i].strength<=0.0f) rayList[i].active=false;
         
     }
@@ -478,14 +479,14 @@ void display(void)
         std::cout<<"New Wave"<<std::endl;
     }
     
-    glEnable(GL_BLEND);    //启用混合
-    glDepthMask(GL_FALSE); //将深度缓存设置为只读状态
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //透明效果混合
+    glEnable(GL_BLEND);
+    glDepthMask(GL_FALSE);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     scene.render();
 
-    glDepthMask(GL_TRUE); //深度缓存设置为正常状态
-    glDisable(GL_BLEND); //禁用混合
+    glDepthMask(GL_TRUE);
+    glDisable(GL_BLEND);
 
 
     glutPostRedisplay();
@@ -505,7 +506,7 @@ void reshape (int w, int h)
 void mouse(int x,int y)
 {
     rot_y=(x-300.f)/300.0f*180.0f;
-    rot_x=-(y-200.f)/200.0f*180.0f;
+    rot_x=-(y-200.f)/200.0f*180.0f/16.0f;
 }
 void recv_callback(int length, BYTE* recv)
 {
@@ -596,6 +597,7 @@ int main(int argc, char** argv)
     glutCreateWindow (argv[0]);
     initCalc();
     init ();
+    HANDLE waveHandle = CreateThread(NULL,0,waveThread,(LPVOID)NULL,0,NULL);
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
     glutPassiveMotionFunc(mouse);
