@@ -71,22 +71,26 @@ namespace RayTracer{
 
     void Primitive::render()
     {
-        glColor3f(1,1,1);
-        glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+        glColor4f(1,1,1,0.4);
+        glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
         glBegin(GL_TRIANGLES);
         glVertex3fv(p1.cell);
         glVertex3fv(p2.cell);
         glVertex3fv(p3.cell);
         glEnd();
 
-        glColor3f(1,0,1);
+        glColor4f(1,1,1,0.7);
         glBegin(GL_LINES);
-        vector3 center=p1+p2+p3;
+        /*vector3 center=p1+p2+p3;
         center=center/3.0f;
         glVertex3fv(center.cell);
         vector3 end;
         end = center+ m_Plane.N*0.3f;
-        glVertex3fv(end.cell);
+        glVertex3fv(end.cell);*/
+        glVertex3fv(p1.cell);
+        glVertex3fv(p2.cell);
+        glVertex3fv(p3.cell);
+        glVertex3fv(p2.cell);
         glEnd();
     }
 

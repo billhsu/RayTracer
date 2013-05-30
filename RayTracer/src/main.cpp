@@ -244,10 +244,7 @@ void initCalc()
     int divide=16;
     int kernelSize=1024;
     int dataSize = 71296/divide;
-    //memset(response_l,0,kernelSize*sizeof(float));
-    //memset(response_r,0,kernelSize*sizeof(float));
-    //response_l[0]=1;
-    //response_r[0]=1;
+
 
     buffer = new short[(dataSize+kernelSize)*2];
     buffer_old = new short[(dataSize+kernelSize)*2];
@@ -302,14 +299,14 @@ void initCalc()
     double duration = (double)(finish - start) / CLOCKS_PER_SEC;
     printf( "%f seconds\n", duration );
 
-    std::ofstream out("data/response.txt");
+    /*std::ofstream out("data/response.txt");
     out<<"a =[";
     for(int i=0;i<1024;++i) 
     {
         out<<response_l[i]<<" "<<response_r[i]<<"; ";
     }
     out<<"]"<<std::endl;
-    
+    */
 
 }
 std::vector<RayTracer::Ray> rayList;
@@ -361,7 +358,10 @@ void keyinput(unsigned char key, int x, int y)
 void init(void)
 {
     glClearColor (0.0, 0.0, 0.0, 0.0);
-    glShadeModel (GL_FLAT);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+
+    glShadeModel (GL_SMOOTH);
 
     for(int theta=0;theta<30;++theta)
     {
@@ -402,8 +402,10 @@ void init(void)
 //Compute ray tracing by per frame ray simulation 
 void display(void)
 {
-    glClearColor (0.0f, 0.0f, 0.0f, 0.0f);
-    glClear (GL_COLOR_BUFFER_BIT);
+    glClearColor (0.2f, 0.2f, 0.2f, 0.0f);
+    
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
     glColor3f (1.0, 1.0, 1.0);
     glLoadIdentity ();             /* clear the matrix */
     /* viewing transformation  */
@@ -475,7 +477,17 @@ void display(void)
         init();
         std::cout<<"New Wave"<<std::endl;
     }
+    
+    glEnable(GL_BLEND);    //启用混合
+    glDepthMask(GL_FALSE); //将深度缓存设置为只读状态
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //透明效果混合
+
     scene.render();
+
+    glDepthMask(GL_TRUE); //深度缓存设置为正常状态
+    glDisable(GL_BLEND); //禁用混合
+
+
     glutPostRedisplay();
     glFlush ();
 }

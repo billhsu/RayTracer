@@ -9,6 +9,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include "../glut.h"
 
 namespace RayTracer{
 
