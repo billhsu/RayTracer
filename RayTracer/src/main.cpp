@@ -114,14 +114,14 @@ void initCalc()
 
     mWav.openDevice();
     RayTracer::Scene scene;
-    for(int theta=0;theta<30;++theta)
+    for(int theta=0;theta<60;++theta)
     {
-        for(int phi=-15;phi<15;++phi)
+        for(int phi=-30;phi<30;++phi)
         {
             RayTracer::vector3 dir;
-            dir.x = cosf(2.0f*PI/30.0f*theta)*sinf(2.0f*PI/30.0f*phi);
-            dir.y = sinf(2.0f*PI/30.0f*theta)*sinf(2.0f*PI/30.0f*phi);
-            dir.z = cosf(2.0f*PI/30.0f*phi);
+            dir.x = cosf(2.0f*PI/60.0f*theta)*sinf(2.0f*PI/60.0f*phi);
+            dir.y = sinf(2.0f*PI/60.0f*theta)*sinf(2.0f*PI/60.0f*phi);
+            dir.z = cosf(2.0f*PI/60.0f*phi);
             RayTracer::Ray ray(origin, dir);
             ray.strength=1.0f;
             ray.microseconds=0;
@@ -168,16 +168,16 @@ void initCalc()
             if(Tca>0)
             {
                 d2 = DOT(L,L) - Tca*Tca;
-                if(d2<0.25f)
+                if(d2<0.1f)
                 {
-                    float Thc = sqrt(0.25f-d2);
+                    float Thc = sqrt(0.1f-d2);
                     dist_to_listener = Tca-Thc;
                 }
             }
             if(dist_>dist_to_listener)
             {
                 rayListTmp[i].totalDist+=(dist_to_listener);
-                rayListTmp[i].strength-=dist_to_listener/20.0f;
+                rayListTmp[i].strength-=dist_to_listener/10.0f;
                 if(rayListTmp[i].strength<=0.0f)rayListTmp[i].strength=0.0f;
                 rayListTmp[i].active=false;
                 active_rays--;
@@ -195,7 +195,7 @@ void initCalc()
             if(which != MISS)
             {
                 rayListTmp[i].totalDist+=dist_;
-                rayListTmp[i].strength-=dist_/40.0f;
+                rayListTmp[i].strength-=dist_/10.0f;
                 rayListTmp[i].strength/=4;
                 RayTracer::vector3 end=rayListTmp[i].GetOrigin()+rayListTmp[i].GetDirection()*(dist_*0.999f);
                 RayTracer::vector3 dir=-2*DOT(scene.primList[which].GetNormal(),rayListTmp[i].GetDirection())

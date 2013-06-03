@@ -95,7 +95,7 @@ void hrtf::read_hrtf(char* filename)
 
 hrtf::ir_both hrtf::getHRTF(RayTracer::vector3 direction)
 {
-    direction=-direction;
+    //direction=-direction;
     float yaw = atan2(direction.z, direction.x)*180.0f/PI;
     float pitch = atan2(direction.y, 
         sqrt(direction.x*direction.x+direction.z*direction.z))*180.0f/PI;
