@@ -43,6 +43,7 @@ struct respond
     RayTracer::vector3 direction;
     float strength;
     int time;
+    bool operator<(const respond &rhs) const { return strength > rhs.strength; }
 };
 std::vector<respond> respondList;
 short* music;
@@ -214,7 +215,8 @@ void initCalc()
     printf("stage 2\n");
     float* hrtf; 
     hrtf::ir_both ir;
-    for(unsigned int i=0;i<respondList.size();++i)
+    std::sort(respondList.begin(), respondList.end());
+    for(unsigned int i=0;i<(respondList.size()>2?2:respondList.size());++i)
     {
         Matrix4 m1;
         m1.rotateY(rot_z);
@@ -315,10 +317,10 @@ void keyinput(unsigned char key, int x, int y)
 {
     Matrix4 m1,m2;
     m1.rotateY(rot_z);
-    Vector3 vx=Vector3(-0.1,0,0);
+    Vector3 vx=Vector3(0,0,-0.1);
     vx=m1*vx;
     m2.rotateY(rot_z+90);
-    Vector3 vz=Vector3(-0.1,0,0);
+    Vector3 vz=Vector3(0,0,-0.1);
     vz=m2*vz;
     HANDLE waveHandle;
     switch(key)
@@ -421,7 +423,7 @@ void display(void)
     glBegin(GL_LINES);
     glColor3f(1.0, 1.0, 0.0);
     glVertex3f(0,0,0);
-    glVertex3f(-1,0,0);
+    glVertex3f(0,0,-1);
     glEnd();
     glColor3f(0.7, 0.5, 0.5);
     glutWireSphere (0.5f, 10.0f, 10.0f);
