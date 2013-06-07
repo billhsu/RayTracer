@@ -94,7 +94,6 @@ DWORD WINAPI waveThread(LPVOID data) {
     while( true )
     {
         initCalc();
-        //Sleep(20-(end-start)*CLOCKS_PER_SEC/1000.0);
     }
     return 0;
 }
