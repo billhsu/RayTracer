@@ -16,17 +16,17 @@ wav::wav(void)
 
 DWORD WINAPI wav::AudioOutThreadProc(LPVOID lpParameter)
 {
-    printf("AudioOutThreadProc start.\n");
+    //printf("AudioOutThreadProc start.\n");
     MSG msg;
     while(GetMessage(&msg,0,0,0))
     {
         switch(msg.message )
         {
         case WOM_OPEN:
-            printf("WOM_OPEN \n");
+            //printf("WOM_OPEN \n");
             break;
         case WOM_CLOSE:
-            printf("WOM_CLOSE \n");
+            //printf("WOM_CLOSE \n");
             break;
         case WOM_DONE:
             WAVEHDR* pwh=(WAVEHDR*)msg.lParam;
@@ -36,7 +36,7 @@ DWORD WINAPI wav::AudioOutThreadProc(LPVOID lpParameter)
             break;
         }
     }
-    printf("AudioInThreadProc exit.\n");
+    //printf("AudioInThreadProc exit.\n");
     return msg.wParam;
 }
 short* wav::readWavFileData(char *szFilename, long &dataLengthOut)
@@ -139,7 +139,7 @@ void wav::playWave(short* buffer,int length)
 {
     char* p = new char[length];
     {
-        printf("CopyMem\n");
+        //printf("CopyMem\n");
         boost::lock_guard<boost::mutex> m_csLock(*mutex);
         CopyMemory(p,(char*)buffer,length);
     }

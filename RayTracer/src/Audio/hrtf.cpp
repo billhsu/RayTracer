@@ -128,8 +128,8 @@ hrtf::ir_both hrtf::getHRTF(RayTracer::vector3 direction)
             target_ir.ir_r = hrtf_list_r[i].ir;
         }
     }
-    std::cout<<direction<<" ";
-    printf("R: pitch=%f e=%d yaw=%f a=%d\n",pitch,e,yaw,a);
+    //std::cout<<direction<<" ";
+    //printf("R: pitch=%f e=%d yaw=%f a=%d\n",pitch,e,yaw,a);
     return target_ir;
 
 
@@ -140,7 +140,7 @@ void hrtf::convAudio(short* buffer, short* buffer_last, short* music, int dataSi
 {
     //std::ofstream out;
     //out.open("afterConv.txt",std::ios::out | std::ios::app);
-    printf("convAudio start %d\n",music);
+    //printf("convAudio start %d\n",music);
     memset(buffer,0,2*(dataSize+kernelSize)*sizeof(short));
     //if(!first)memcpy(buffer,buffer_last,kernelSize);
 
@@ -215,7 +215,7 @@ void hrtf::convAudio(short* buffer, short* buffer_last, short* music, int dataSi
     }
     //memcpy(buffer_last,&buffer[dataSize*2-kernelSize*2],kernelSize*2);
 #endif
-    printf("convAudio end %d\n",buffer);
+    //printf("convAudio end %d\n",buffer);
     /*for(int i=0;i<dataSize;++i)
     {
         out<<buffer[2*i]<<" "<<buffer[2*i+1]<<";";

@@ -132,7 +132,7 @@ void initCalc()
         }
     }
 
-    std::cout<<"Sound position:"<<origin<<" Listener position: "<<listener<<std::endl;
+    //std::cout<<"Sound position:"<<origin<<" Listener position: "<<listener<<std::endl;
     startTime = GetTickCount();
     RayTracer::Primitive p= RayTracer::Primitive(RayTracer::vector3(1,-1.5,-1.5),
         RayTracer::vector3(1,-1.5,1.5),
@@ -212,18 +212,22 @@ void initCalc()
     /*std::ifstream in("data/hrtf_0_0_r.txt");
     float hrtf[128]={0.0f};
     for(int i=0;i<128;++i) in>>hrtf[i];*/
-    printf("stage 2\n");
+    //printf("stage 2\n");
     float* hrtf; 
     hrtf::ir_both ir;
     std::sort(respondList.begin(), respondList.end());
-    for(unsigned int i=0;i<(respondList.size()>2?2:respondList.size());++i)
+    for(unsigned int i=0;i<1/*(respondList.size()>5?5:respondList.size())*/;++i)
     {
         Matrix4 m1;
         m1.rotateY(rot_z);
         Vector3 newDir;
-        newDir.x=respondList[i].direction.x;
+        newDir.x=respondList[i].direction.z;
         newDir.y=respondList[i].direction.y;
-        newDir.z=respondList[i].direction.z;
+        newDir.z=respondList[i].direction.x;
+        /*newDir.x=listener.z;
+        newDir.y=listener.y;
+        newDir.z=listener.x;
+        */
         newDir=m1*newDir;
         respondList[i].direction.x=newDir.x;
         respondList[i].direction.y=newDir.y;
@@ -239,11 +243,11 @@ void initCalc()
         {
             if(respondList[i].time+j<1024)response_r[respondList[i].time+j]+=(hrtf[j]*respondList[i].strength);
         }
-        printf("%d/%d\n",i,respondList.size());
+        //printf("%d/%d\n",i,respondList.size());
     }
 
     
-    int divide=16;
+    int divide=1;
     int kernelSize=1024;
     int dataSize = 71296/divide;
 
@@ -278,7 +282,7 @@ void initCalc()
         WaitForSingleObject(playwavHandle,INFINITE);
 
         {
-            printf("Swap buffer\n");
+            //printf("Swap buffer\n");
             boost::lock_guard<boost::mutex> m_csLock(mutex);
             tmpbuf = buffer_old;
             buffer_old = buffer;
@@ -299,7 +303,7 @@ void initCalc()
     finish = clock();
     mWav.closeDevice();
     double duration = (double)(finish - start) / CLOCKS_PER_SEC;
-    printf( "%f seconds\n", duration );
+    //printf( "%f seconds\n", duration );
 
     /*std::ofstream out("data/response.txt");
     out<<"a =[";
@@ -317,10 +321,10 @@ void keyinput(unsigned char key, int x, int y)
 {
     Matrix4 m1,m2;
     m1.rotateY(rot_z);
-    Vector3 vx=Vector3(0,0,-0.1);
+    Vector3 vx=Vector3(0.1,0,0);
     vx=m1*vx;
     m2.rotateY(rot_z+90);
-    Vector3 vz=Vector3(0,0,-0.1);
+    Vector3 vz=Vector3(0.1,0,0);
     vz=m2*vz;
     HANDLE waveHandle;
     switch(key)
@@ -328,18 +332,22 @@ void keyinput(unsigned char key, int x, int y)
     case 'w':
         listener.x+=vx.x;
         listener.z+=vx.z;
+        std::cout<<listener<<std::endl;
         break;
     case 's':
         listener.x-=vx.x;
         listener.z-=vx.z;
+        std::cout<<listener<<std::endl;
         break;
     case 'a':
         listener.x+=vz.x;
         listener.z+=vz.z;
+        std::cout<<listener<<std::endl;
         break;
     case 'd':
         listener.x-=vz.x;
         listener.z-=vz.z;
+        std::cout<<listener<<std::endl;
         break;
     case 'j':
         rot_z+=1.5f;
@@ -423,7 +431,7 @@ void display(void)
     glBegin(GL_LINES);
     glColor3f(1.0, 1.0, 0.0);
     glVertex3f(0,0,0);
-    glVertex3f(0,0,-1);
+    glVertex3f(1,0,0);
     glEnd();
     glColor3f(0.7, 0.5, 0.5);
     glutWireSphere (0.5f, 10.0f, 10.0f);
