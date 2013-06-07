@@ -216,7 +216,7 @@ void initCalc()
     float* hrtf; 
     hrtf::ir_both ir;
     std::sort(respondList.begin(), respondList.end());
-    for(unsigned int i=0;i<1/*(respondList.size()>5?5:respondList.size())*/;++i)
+    for(unsigned int i=0;i<(respondList.size()>5?5:respondList.size());++i)
     {
         Matrix4 m1;
         m1.rotateY(rot_z);
@@ -224,10 +224,6 @@ void initCalc()
         newDir.x=respondList[i].direction.z;
         newDir.y=respondList[i].direction.y;
         newDir.z=respondList[i].direction.x;
-        /*newDir.x=listener.z;
-        newDir.y=listener.y;
-        newDir.z=listener.x;
-        */
         newDir=m1*newDir;
         respondList[i].direction.x=newDir.x;
         respondList[i].direction.y=newDir.y;
