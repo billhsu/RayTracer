@@ -297,16 +297,7 @@ void initCalc()
     finish = clock();
     mWav.closeDevice();
     double duration = (double)(finish - start) / CLOCKS_PER_SEC;
-    //printf( "%f seconds\n", duration );
 
-    /*std::ofstream out("data/response.txt");
-    out<<"a =[";
-    for(int i=0;i<1024;++i) 
-    {
-        out<<response_l[i]<<" "<<response_r[i]<<"; ";
-    }
-    out<<"]"<<std::endl;
-    */
 
 }
 std::vector<RayTracer::Ray> rayList;
