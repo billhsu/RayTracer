@@ -215,7 +215,7 @@ void initCalc()
     float* hrtf; 
     hrtf::ir_both ir;
     std::sort(respondList.begin(), respondList.end());
-    for(unsigned int i=0;i<(respondList.size()>5?5:respondList.size());++i)
+    for(unsigned int i=0;i<respondList.size();++i)
     {
         Matrix4 m1;
         m1.rotateY(rot_z);
@@ -277,7 +277,6 @@ void initCalc()
         WaitForSingleObject(playwavHandle,INFINITE);
 
         {
-            //printf("Swap buffer\n");
             boost::lock_guard<boost::mutex> m_csLock(mutex);
             tmpbuf = buffer_old;
             buffer_old = buffer;

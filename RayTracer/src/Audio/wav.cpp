@@ -139,7 +139,6 @@ void wav::playWave(short* buffer,int length)
 {
     char* p = new char[length];
     {
-        //printf("CopyMem\n");
         boost::lock_guard<boost::mutex> m_csLock(*mutex);
         CopyMemory(p,(char*)buffer,length);
     }

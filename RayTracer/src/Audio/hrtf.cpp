@@ -65,7 +65,7 @@ void hrtf::read_hrtf(char* filename)
     short* ir = mWav.readWavFileData(filename, fileSize);
     for(int i=0;i<128;++i)
     {
-        data.ir[i]=(float)(((int)ir[i*4]+(int)ir[i*4+1]+(int)ir[i*4+2]+(int)ir[i*4+3]/4))/32768.0f/2.0f;
+        data.ir[i]=(float)(ir[i*4]+ir[i*4+1]+ir[i*4+2]+ir[i*4+3])/32768.0f/2.0f;
         //printf("%d ",ir[i]);
     }
     free(ir);
