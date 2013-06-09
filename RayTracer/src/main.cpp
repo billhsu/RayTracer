@@ -182,10 +182,6 @@ void initCalc()
                 rayListTmp[i].active=false;
                 active_rays--;
 
-                //std::cout<<rayListTmp[i].totalDist/0.000340f<<"¦Ìs, "<<rayListTmp[i].strength<<" "<<
-                //    rayListTmp[i].GetDirection()<<std::endl;
-                //std::cout<<rayListTmp[i].GetDirection()<<" ";
-                //mhrtf.getHRTF(rayListTmp[i].GetDirection());
                 respond respnd;
                 respnd.strength=rayListTmp[i].strength;
                 respnd.time=(int)((rayListTmp[i].totalDist/0.000340f)/time441k);
@@ -208,10 +204,6 @@ void initCalc()
         }
     }
 
-    /*std::ifstream in("data/hrtf_0_0_r.txt");
-    float hrtf[128]={0.0f};
-    for(int i=0;i<128;++i) in>>hrtf[i];*/
-    //printf("stage 2\n");
     float* hrtf; 
     hrtf::ir_both ir;
     std::sort(respondList.begin(), respondList.end());
@@ -238,7 +230,6 @@ void initCalc()
         {
             if(respondList[i].time+j<1024)response_r[respondList[i].time+j]+=(hrtf[j]*respondList[i].strength);
         }
-        //printf("%d/%d\n",i,respondList.size());
     }
 
     
@@ -339,9 +330,6 @@ void keyinput(unsigned char key, int x, int y)
         break;
     case 'k':
         rot_z-=1.5f;
-        break;
-    case 'p':
-        //waveHandle = CreateThread(NULL,0,waveThread,(LPVOID)NULL,0,NULL);
         break;
     case 27:
         exit(0);
@@ -463,8 +451,8 @@ void display(void)
         glVertex3f(rayList[i].GetOrigin().x, rayList[i].GetOrigin().y, rayList[i].GetOrigin().z);
         glVertex3f(end.x, end.y, end.z);
         glEnd();
-        rayList[i].SetOrigin(rayList[i].GetOrigin()+rayList[i].GetDirection()*0.000340f);
-        rayList[i].strength -= 0.00005f;
+        rayList[i].SetOrigin(rayList[i].GetOrigin()+rayList[i].GetDirection()*0.00340f);
+        rayList[i].strength -= 0.0001f;
         if(rayList[i].strength<=0.0f) rayList[i].active=false;
         
     }
