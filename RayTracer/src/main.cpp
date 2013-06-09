@@ -73,23 +73,13 @@ struct convData
     int kernelSize;
     float* response_l;
     float* response_r;
+    bool first;
 };
 const int divide = 2;
 short* volatile buffer;
 short* volatile buffer_old;
 short* volatile buffer_last;
-DWORD WINAPI convThread(LPVOID data) {
-    boost::lock_guard<boost::mutex> m_csLock(mutex);
-    hrtf::convAudio(((convData*)data)->buffer,((convData*)data)->buffer_last,
-        ((convData*)data)->music,((convData*)data)->dataSize,
-        ((convData*)data)->kernelSize,((convData*)data)->response_l,
-        ((convData*)data)->response_r);
-    return 0;
-}
-DWORD WINAPI playwavThread(LPVOID dataSize) {
-    mWav.playWave(buffer_old,*(int*)dataSize*4);
-    return 0;
-}
+
 DWORD WINAPI waveThread(LPVOID data) {
     while( true )
     {
@@ -102,9 +92,10 @@ DWORD WINAPI waveThread(LPVOID data) {
 void initCalc()
 {
     
-    long filelen;
+    long musicLen;
     mWav.setMutex(&mutex);
-    music = mWav.readWavFileData("Res/tada.wav",filelen);
+    music = mWav.readWavFileData("Res/footstep.wav",musicLen);
+    musicLen/=4;
     rayListTmp.clear();
     respondList.clear();
     response_l=new float[1024];
@@ -113,6 +104,7 @@ void initCalc()
     memset(response_r,0,1024*sizeof(float));
 
     mWav.openDevice();
+    mWav.prepWave();
     RayTracer::Scene scene;
     for(int theta=0;theta<60;++theta)
     {
@@ -230,59 +222,26 @@ void initCalc()
         {
             if(respondList[i].time+j<1024)response_r[respondList[i].time+j]+=(hrtf[j]*respondList[i].strength);
         }
+        //printf("%d/%d\n",i,respondList.size());
     }
 
     
-    int divide=1;
+    //int divide=1;
     int kernelSize=1024;
-    int dataSize = 71296/divide;
 
-
-    buffer = new short[(dataSize+kernelSize)*2];
-    buffer_old = new short[(dataSize+kernelSize)*2];
+    buffer = new short[(musicLen+kernelSize)*2];
+    buffer_old = new short[(musicLen+kernelSize)*2];
     buffer_last = new short [kernelSize*2];
-    hrtf::convAudio(buffer_old,buffer_last,music,dataSize,kernelSize,response_l,response_r,true);
 
-    convData *data = (convData*) malloc(sizeof(convData));
-    data->dataSize=dataSize;
-    data->kernelSize=kernelSize;
-    data->response_l=response_l;
-    data->response_r=response_r;
     
-    HANDLE convHandle,playwavHandle;
-    short* tmpbuf;
-
-
-    playwavHandle = CreateThread(NULL,0,playwavThread,(LPVOID)&dataSize,0,NULL);
-    
-    for(int i=1;i<divide;++i)
-    {
-        data->buffer=buffer;
-        data->buffer_last = buffer_last;
-        data->music=&music[i*dataSize*2];
-        convHandle = CreateThread(NULL,0,convThread,(LPVOID)data,0,NULL);
-        //printf("%d CreateThread\n",i);
-        
-        
-        
-        WaitForSingleObject(playwavHandle,INFINITE);
-
-        {
-            boost::lock_guard<boost::mutex> m_csLock(mutex);
-            tmpbuf = buffer_old;
-            buffer_old = buffer;
-            buffer = tmpbuf;
-        }
-        
-        playwavHandle = CreateThread(NULL,0,playwavThread,(LPVOID)&dataSize,0,NULL);
-        //printf("-----------\n");
-        //system("pause");
-    }
-    WaitForSingleObject(playwavHandle,INFINITE);
+    hrtf::convAudio(buffer,buffer_last,music,musicLen,kernelSize,response_l,response_r,true);
+    mWav.playWave(buffer,musicLen*2);
     free(buffer_old);
     buffer_old = NULL;
     free(buffer);
     buffer = NULL;
+    free(buffer_last);
+    buffer_last = NULL;
     free(music);
     mWav.unprepWave();
     finish = clock();
@@ -330,6 +289,9 @@ void keyinput(unsigned char key, int x, int y)
         break;
     case 'k':
         rot_z-=1.5f;
+        break;
+    case 'p':
+        //waveHandle = CreateThread(NULL,0,waveThread,(LPVOID)NULL,0,NULL);
         break;
     case 27:
         exit(0);

@@ -139,15 +139,16 @@ void hrtf::convAudio(short* buffer, short* buffer_last, short* music, int dataSi
     int kernelSize, float* response_l, float* response_r,bool first)
 {
     memset(buffer,0,2*(dataSize+kernelSize)*sizeof(short));
-
+    float resultL=0,resultR;
     for (int n = 0; n < dataSize+kernelSize - 1; n++)
     {
         size_t kmin, kmax, k;
         buffer[2*n]=0;
         buffer[2*n+1]=0;
-        float resultL=0.0f,resultR=0.0f;
-        if(n<kernelSize/2 && !first)resultL = (float)buffer_last[2*n];
-        if(n<kernelSize/2 && !first)resultR = (float)buffer_last[2*n+1];
+        resultL=0;
+        resultR=0;
+        if(n<kernelSize/2 && !first)resultL = buffer_last[2*n];
+        if(n<kernelSize/2 && !first)resultR = buffer_last[2*n+1];
         kmin = (n >= kernelSize - 1) ? n - (kernelSize - 1) : 0;
         kmax = (n < dataSize - 1) ? n : dataSize - 1;
 

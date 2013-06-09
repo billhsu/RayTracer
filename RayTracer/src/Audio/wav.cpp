@@ -50,15 +50,15 @@ short* wav::readWavFileData(char *szFilename, long &dataLengthOut)
     buffer = (char*) calloc(1, len+1);
     fread(buffer, 1, len, fp);
     fclose(fp);
-    dataLengthOut = len;
-    short* bufferParsed = parseWav(buffer);
+    //dataLengthOut = len;
+    short* bufferParsed = parseWav(buffer,dataLengthOut);
     free(buffer);
     return bufferParsed;
 
 }
 
 
-short* wav::parseWav(char *data)
+short* wav::parseWav(char *data,long &len)
 {
     long *mPtr;
     long *tmpPtr;
@@ -100,6 +100,7 @@ short* wav::parseWav(char *data)
                     mFmtChunk.numChannels,
                     mDataChunk.chunkDataSize);
                 */
+                len=mDataChunk.chunkDataSize;
                 wf.wFormatTag = mFmtChunk.compressionCode;
                 wf.nChannels = mFmtChunk.numChannels;
                 wf.nSamplesPerSec = mFmtChunk.sampleRate;
@@ -121,8 +122,7 @@ short* wav::parseWav(char *data)
 }
 void wav::openDevice()
 {
-    m_hAudioOut=CreateThread(0,0,AudioOutThreadProc,this,0,&m_dwAudioOutId);
-    waveOutOpen(&hWaveOut,WAVE_MAPPER,&wf,m_dwAudioOutId,0,CALLBACK_THREAD);
+    waveOutOpen(&hWaveOut,WAVE_MAPPER,&wf,m_dwAudioOutId,0,CALLBACK_NULL);
 }
 void wav::closeDevice()
 {
@@ -137,26 +137,12 @@ void wav::prepWave()
 }
 void wav::playWave(short* buffer,int length)
 {
-    char* p = new char[length];
-    {
-        boost::lock_guard<boost::mutex> m_csLock(*mutex);
-        CopyMemory(p,(char*)buffer,length);
-    }
     
-    LPWAVEHDR pwh=new WAVEHDR;
-    ZeroMemory(pwh,sizeof(WAVEHDR));
-
-    pwh->dwBufferLength=length;
-    pwh->lpData=p;
-    waveOutPrepareHeader(hWaveOut,pwh,sizeof(WAVEHDR));
-    //wh.lpData = (char*)buffer;
-    //wh.dwBufferLength = length;
-    //printf("[[wav start %d\n",buffer);
-    //waveOutWrite(hWaveOut,(wavehdr_tag*)&wh,sizeof(wh));
-    waveOutWrite(hWaveOut,pwh,sizeof(WAVEHDR));
-    //do {}
-    //while (!(wh.dwFlags & WHDR_DONE));
-    //printf("]]wav end\n");
+    wh.lpData = (char*)buffer;
+    wh.dwBufferLength = length;
+    waveOutWrite(hWaveOut,(wavehdr_tag*)&wh,sizeof(wh));
+    do {}
+    while (!(wh.dwFlags & WHDR_DONE));
 }
 void wav::unprepWave()
 {

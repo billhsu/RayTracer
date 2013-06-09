@@ -43,7 +43,7 @@ class wav{
             long chunkDataSize;
         };
 
-        short* parseWav(char *data);
+        short* parseWav(char *data, long &len);
     public:
         WAVEFORMATEX wf;
         volatile WAVEHDR wh;
