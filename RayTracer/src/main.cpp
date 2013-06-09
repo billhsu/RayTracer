@@ -50,8 +50,8 @@ short* music;
 //Compute ray tracing by ray simulation 
 RayTracer::vector3 origin = RayTracer::vector3(0.0f,0.0f,0.0f);
 RayTracer::vector3 listener  = RayTracer::vector3(1.0f,0.0f,1.0f);
-float rot_z = 0.0f;
-
+float rotHor = 0.0f;
+float rotVer =0.0f;
 bool start_flag = false;
 int start_match_pos = 0;
 int recv_cnt = 0;
@@ -129,6 +129,7 @@ void initCalc()
         RayTracer::vector3(1,-1.5,1.5),
         RayTracer::vector3(0,1,0));
     //scene.primList.push_back(p);
+    scene.primList.clear();
     scene.loadObj("Res/Scene.obj");
     //Compute delays
     int active_rays = rayListTmp.size();
@@ -171,6 +172,7 @@ void initCalc()
                 rayListTmp[i].totalDist+=(dist_to_listener);
                 rayListTmp[i].strength-=dist_to_listener/10.0f;
                 if(rayListTmp[i].strength<=0.0f)rayListTmp[i].strength=0.0f;
+
                 rayListTmp[i].active=false;
                 active_rays--;
 
@@ -202,7 +204,8 @@ void initCalc()
     for(unsigned int i=0;i<respondList.size();++i)
     {
         Matrix4 m1;
-        m1.rotateY(rot_z);
+        m1.rotateY(rotHor);
+        m1.rotateZ(rotVer);
         Vector3 newDir;
         newDir.x=respondList[i].direction.z;
         newDir.y=respondList[i].direction.y;
@@ -235,7 +238,7 @@ void initCalc()
 
     
     hrtf::convAudio(buffer,buffer_last,music,musicLen,kernelSize,response_l,response_r,true);
-    mWav.playWave(buffer,musicLen*2);
+    mWav.playWave(buffer,musicLen);
     free(buffer_old);
     buffer_old = NULL;
     free(buffer);
@@ -243,6 +246,11 @@ void initCalc()
     free(buffer_last);
     buffer_last = NULL;
     free(music);
+    music=NULL;
+    free(response_l);
+    response_l=NULL;
+    free(response_r);
+    response_r=NULL;
     mWav.unprepWave();
     finish = clock();
     mWav.closeDevice();
@@ -255,10 +263,10 @@ std::vector<RayTracer::Ray> rayList;
 void keyinput(unsigned char key, int x, int y)
 {
     Matrix4 m1,m2;
-    m1.rotateY(rot_z);
+    m1.rotateY(rotHor);
     Vector3 vx=Vector3(0.1,0,0);
     vx=m1*vx;
-    m2.rotateY(rot_z+90);
+    m2.rotateY(rotHor+90);
     Vector3 vz=Vector3(0.1,0,0);
     vz=m2*vz;
     HANDLE waveHandle;
@@ -285,13 +293,16 @@ void keyinput(unsigned char key, int x, int y)
         std::cout<<listener<<std::endl;
         break;
     case 'j':
-        rot_z+=1.5f;
+        rotHor+=1.5f;
         break;
     case 'k':
-        rot_z-=1.5f;
+        rotHor-=1.5f;
         break;
-    case 'p':
-        //waveHandle = CreateThread(NULL,0,waveThread,(LPVOID)NULL,0,NULL);
+    case 'i':
+        rotVer+=1.5f;
+        break;
+    case 'm':
+        rotVer-=1.5f;
         break;
     case 27:
         exit(0);
@@ -324,14 +335,9 @@ void init(void)
             rayList.push_back(ray);
         }
     }
-    /*RayTracer::Ray ray(RayTracer::vector3(1.5f,0.0f,0.0f), RayTracer::vector3(-1.0f,0.0f,0.0f));
-    ray.strength=1.0f;
-    ray.milliseconds=0;
-    ray.active=true;
-    ray.GetDirection().Normalize();
-    rayList.push_back(ray);*/
+    
     glutGet(GLUT_ELAPSED_TIME);
-    //std::cout<<"Sound position:(1.5,0,0)  Listener position: (-1.5,0,0)"<<std::endl;
+    
     startTime = GetTickCount();
     RayTracer::Primitive p= RayTracer::Primitive(RayTracer::vector3(1,-1.5,-1.5),
         RayTracer::vector3(1,-1.5,1.5),
@@ -362,7 +368,8 @@ void display(void)
     glPushMatrix();
     
     glTranslatef (listener.x, listener.y, listener.z);
-    glRotatef(rot_z,0.0f,1.0f,0.0f);
+    glRotatef(rotHor,0.0f,1.0f,0.0f);
+    glRotatef(rotVer,0.0f,0.0f,1.0f);
     glBegin(GL_LINES);
     glColor3f(1.0, 1.0, 0.0);
     glVertex3f(0,0,0);
@@ -520,7 +527,7 @@ void recv_callback(int length, BYTE* recv)
                 rz = pitch;
                 rx = roll;
                 */
-                rot_z=-yaw;
+                rotHor=-yaw;
                 start_flag = false;
                 recv_cnt = 0;
                 start_match_pos = 0;
