@@ -22,6 +22,7 @@
 #include "SerialPort/SerialPort.h"
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
+#include <math.h>
 
 boost::mutex mutex;
 
@@ -169,8 +170,12 @@ void initCalc()
             }
             if(dist_>dist_to_listener)
             {
-                rayListTmp[i].totalDist+=(dist_to_listener);
-                rayListTmp[i].strength-=dist_to_listener/10.0f;
+                
+                if(dist_to_listener>0)
+                {
+                    rayListTmp[i].totalDist+=(dist_to_listener);
+                    rayListTmp[i].strength-=pow(2.78f,dist_to_listener/30.0f)/10;
+                }
                 if(rayListTmp[i].strength<=0.0f)rayListTmp[i].strength=0.0f;
 
                 rayListTmp[i].active=false;
@@ -184,9 +189,12 @@ void initCalc()
             }
             if(which != MISS)
             {
-                rayListTmp[i].totalDist+=dist_;
-                rayListTmp[i].strength-=dist_/10.0f;
-                rayListTmp[i].strength/=4;
+                if(dist_>0)
+                {
+                    rayListTmp[i].totalDist+=dist_;
+                    rayListTmp[i].strength-=pow(2.78f,dist_/30.0f)/10;
+                }
+                rayListTmp[i].strength*=0.5;
                 RayTracer::vector3 end=rayListTmp[i].GetOrigin()+rayListTmp[i].GetDirection()*(dist_*0.999f);
                 RayTracer::vector3 dir=-2*DOT(scene.primList[which].GetNormal(),rayListTmp[i].GetDirection())
                     *scene.primList[which].GetNormal()+rayListTmp[i].GetDirection();
@@ -201,16 +209,17 @@ void initCalc()
     float* hrtf; 
     hrtf::ir_both ir;
     std::sort(respondList.begin(), respondList.end());
-    for(unsigned int i=0;i<respondList.size();++i)
+    for(unsigned int i=0;i<(respondList.size()>37?37:respondList.size());++i)
     {
-        Matrix4 m1;
+        Matrix4 m1,m2;
         m1.rotateY(rotHor);
-        m1.rotateZ(rotVer);
+        m2.rotateZ(rotVer);
+        
         Vector3 newDir;
         newDir.x=respondList[i].direction.z;
         newDir.y=respondList[i].direction.y;
         newDir.z=respondList[i].direction.x;
-        newDir=m1*newDir;
+        newDir=m1*m2*newDir;
         respondList[i].direction.x=newDir.x;
         respondList[i].direction.y=newDir.y;
         respondList[i].direction.z=newDir.z;
