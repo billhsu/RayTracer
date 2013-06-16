@@ -58,7 +58,7 @@ int start_match_pos = 0;
 int recv_cnt = 0;
 
 BYTE recv_data[26]={0};
-BYTE start_mark[]={0xa5,0x5a,0x12,0xa1};
+BYTE start_mark[]={0xff,0xaa};
 int imu_result[14]={0};
 float yaw=0.0f,pitch=0.0f,roll=0.0f;
 
@@ -481,7 +481,7 @@ void recv_callback(int length, BYTE* recv)
             if (b == start_mark[start_match_pos])
             {
                 start_match_pos++;
-                if (start_match_pos == 4)
+                if (start_match_pos == 2)
                 {
                     start_flag = true;
                     recv_cnt = 0;
@@ -495,9 +495,9 @@ void recv_callback(int length, BYTE* recv)
 
             recv_data[recv_cnt] = b;
             ++recv_cnt;
-            if (recv_cnt == 26)
+            if (recv_cnt == 8)
             {
-                for (int i = 0; i < 26; i += 2)
+                for (int i = 0; i < 8; i += 2)
                 {
                     imu_result[i / 2] = (recv_data[i] << 8 | recv_data[i + 1]);
                     if (imu_result[i / 2] >= 32768)
@@ -520,9 +520,9 @@ void recv_callback(int length, BYTE* recv)
                 my = imu_result[7] / 10.0f;
                 mz = imu_result[8] / 10.0f;
                 */
-                yaw = imu_result[9] / 10.0f;
-                pitch = imu_result[10] / 10.0f;
-                roll = imu_result[11] / 10.0f;
+                yaw = imu_result[0] / 10.0f;
+                pitch = imu_result[1] / 10.0f;
+                roll = imu_result[2] / 10.0f;
                 /*IMU.IMU_update(gx, gy, gz, ax, ay, az, mx, my, mz);
                 if (cB_PC.Checked)
                 {
@@ -537,9 +537,16 @@ void recv_callback(int length, BYTE* recv)
                 rx = roll;
                 */
                 rotHor=-yaw;
+                rotVer=-pitch;
                 start_flag = false;
                 recv_cnt = 0;
                 start_match_pos = 0;
+            }
+            else if(recv_cnt>9)
+            {
+                start_flag = false;
+                start_match_pos = 0;
+                recv_cnt = 0;
             }
         }
     }
