@@ -537,7 +537,7 @@ void recv_callback(int length, BYTE* recv)
                 rx = roll;
                 */
                 rotHor=-yaw;
-                rotVer=-pitch;
+                rotVer=roll;
                 start_flag = false;
                 recv_cnt = 0;
                 start_match_pos = 0;
