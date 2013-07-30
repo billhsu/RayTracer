@@ -22,3 +22,9 @@ When we have all the sound rays’ information, we can calculate the scene’s i
 ![RayTracer](https://github.com/billhsu/RayTracer/raw/master/doc/new_response.png)  
 Above is the new impulse response and sound wave we generated in our scene.
 
+##Author
+**Shipeng Xu**
+
++ http://BillHsu.me
++ http://twitter.com/1991bill
++ http://weibo.com/billhsu
