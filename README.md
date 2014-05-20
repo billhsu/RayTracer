@@ -8,6 +8,8 @@ A ray tracer for 3D sound rendering
 * Convolve the generated impulse response with HRTF database(kemar from MIT)
 * Compute the new response.
 
+Digital Object Identifiers (DOI): [![citeDOI](https://zenodo.org/badge/4047/billhsu/RayTracer.png)](http://dx.doi.org/10.5281/zenodo.10001)
+
 Our sound rendering is based on the binaural recording. Two microphones are placed in the left and right ear canals of a dummy human head model. A loudspeaker gives out impulses from different positions, so the microphones could record the impulse responses. When we had such response, we can convolve the original sound wave with the impulse response, and then the new wave possesses directional information. This is how a 3D sound is generated.
 
 ![RayTracer](https://github.com/billhsu/RayTracer/raw/master/doc/br.png)  
